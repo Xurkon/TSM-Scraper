@@ -1,9 +1,22 @@
+<div align="center">
+
 # TSM Item Scraper
+
+![Version](https://img.shields.io/github/v/release/Xurkon/TSM-Scraper?style=for-the-badge&label=VERSION&color=8e44ad)
+![License](https://img.shields.io/github/license/Xurkon/TSM-Scraper?style=for-the-badge&label=LICENSE&color=2980b9)
+![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&label=DOWNLOADS&color=e67e22)
+![Python](https://img.shields.io/badge/PYTHON-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/PLATFORM-WINDOWS-blue?style=for-the-badge&logo=windows&logoColor=white)
+
+<br/>
 
 **Cross-server Item Scraping Tool for TradeSkillMaster on Project Ascension & Retail**
 
-[⬇ Download](https://github.com/Xurkon/TSMItemScraper/releases)
-[📂 View Source](https://github.com/Xurkon/TSMItemScraper)
+[⬇ **Download Latest**](https://github.com/Xurkon/TSM-Scraper/releases/latest) &nbsp;&nbsp;•&nbsp;&nbsp; [📂 **View Source**](https://github.com/Xurkon/TSM-Scraper) &nbsp;&nbsp;•&nbsp;&nbsp; [📖 **Read Documentation**](https://xurkon.github.io/TSM-Scraper/)
+
+</div>
+
+---
 
 ## ✨ Features
 
