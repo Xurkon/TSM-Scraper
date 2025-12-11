@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSM Item Scraper - Cross-Server Tool</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --bg-secondary: #252525;
+            --accent: #9c27b0;
+            --accent-hover: #ba68c8;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(135deg, #120c18 0%, #2d1b4e 100%);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #e0e0e0, #9c27b0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(156, 39, 176, 0.1);
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .card h3 {
+            color: var(--accent);
+            margin-top: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Changelog */
+        .changelog {
+            background-color: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 4rem;
+        }
+
+        .version {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #444;
+        }
+
+        .version h3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .version-date {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        li:before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--text-main);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            color: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="hero">
+        <div class="container">
+            <h1>TSM Item Scraper</h1>
+            <p>Cross-server Item Scraping Tool for TradeSkillMaster on Project Ascension & Retail</p>
+            <div>
+                <a href="https://github.com/Xurkon/TSMItemScraper/releases" class="btn">⬇ Download Latest</a>
+                <a href="https://github.com/Xurkon/TSMItemScraper" class="btn btn-secondary">📂 View Source</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <section class="features">
+            <div class="card">
+                <h3>🌍 Cross-Server</h3>
+                <p>Support for <strong>8 different databases</strong> including Project Ascension, Turtle WoW, and every
+                    version of Wowhead (Classic -> Retail).</p>
+            </div>
+            <div class="card">
+                <h3>📦 Multi-Format</h3>
+                <p>Whether you play Retail or WotLK 3.3.5a, export item strings in the exact format your client needs
+                    (`i:ID` or `item:ID`).</p>
+            </div>
+            <div class="card">
+                <h3>🖥️ Modern GUI</h3>
+                <p>Sleek, dark-themed interface built with CustomTkinter. Customize the look with the built-in
+                    <strong>Theme Editor</strong>.</p>
+            </div>
+            <div class="card">
+                <h3>⚡ Fast & Safe</h3>
+                <p>Automatically backs up your TSM configuration before every import. Caches scraping results for
+                    instant subsequent lookups.</p>
+            </div>
+        </section>
+
+        <section class="changelog">
+            <h2 style="color: var(--text-main); margin-bottom: 2rem;">📜 Changelog</h2>
+
+            <div class="version">
+                <h3>v2.1.0 — Cross-Server Update <span class="version-date">December 2025</span></h3>
+                <ul>
+                    <li><strong>New Database Support</strong>: Added full scraping for Wowhead TBC, Cata, MoP Classic,
+                        and Turtle WoW.</li>
+                    <li><strong>Format Selection</strong>: Decoupled TSM format from database source (e.g. Scrape Retail
+                        -> Import to WotLK).</li>
+                    <li><strong>GUI Improvements</strong>: Added mouse wheel scrolling to all lists, fixed dialog
+                        cut-off issues.</li>
+                    <li><strong>Theme System</strong>: Renamed Settings to "Themes", improved theme editor usability.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="version">
+                <h3>v2.0.0 — Modern GUI Overhaul <span class="version-date">December 2025</span></h3>
+                <ul>
+                    <li><strong>New UI</strong>: Complete rewrite using CustomTkinter for a modern look.</li>
+                    <li><strong>Category Browser</strong>: Select specific item types to scrape (Weapons, Armor, etc.).
+                    </li>
+                    <li><strong>TSM Groups</strong>: Browse your TSM group hierarchy directly in the sidebar.</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>Created by Xurkon for the Project Ascension Community</p>
+        <p>
+            <a href="https://github.com/Xurkon/TSMItemScraper">GitHub</a> •
+            <a href="https://github.com/Xurkon/TSMItemScraper/blob/main/LICENSE">License</a> •
+            <a href="https://ascension.gg">Project Ascension</a>
+        </p>
+    </footer>
+
+</body>
+
+</html>

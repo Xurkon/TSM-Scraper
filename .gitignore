@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*$py.class
+cache/
+build/
+*.spec
+.env
+.venv
+env/
+venv/
