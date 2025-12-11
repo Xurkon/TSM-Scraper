@@ -2,6 +2,12 @@
 
 **Created by [Xurkon](https://github.com/Xurkon)**
 
+## [v2.1.1] - 2025-12-11
+
+- **Fixed:** Resolved Wowhead scraping for Retail, Cataclysm, and MoP by updating CSS selectors.
+- **Fixed:** Resolved Ascension DB scraping by switching to the XML API endpoint (HTML was blocking requests).
+- **Fixed:** Verified cross-server compatibility for all 8 supported game versions.
+
 ## [v2.1.0] - 2025-12-11
 
 ### Cross-Server Scraping Support

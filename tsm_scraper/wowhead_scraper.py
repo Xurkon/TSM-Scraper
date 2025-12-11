@@ -263,7 +263,11 @@ class WowheadScraper:
             soup = BeautifulSoup(response.text, 'html.parser')
             
             # Extract item name
-            title_elem = soup.find('h1', class_='heading-size-1')
+            # Retail/Cata/MoP/Classic often use wh-heading-responsive, older pages might use heading-size-1
+            title_elem = soup.find('h1', class_=['heading-size-1', 'wh-heading-responsive'])
+            if not title_elem:
+                title_elem = soup.find('h1') # Fallback to any H1
+            
             if not title_elem:
                 return None
             name = title_elem.get_text(strip=True)

@@ -468,47 +468,58 @@ class AscensionDBScraper:
         return item_ids[:limit]
     
     def get_item(self, item_id: int) -> Optional[AscensionItem]:
-        """Get a single item by ID from Ascension DB."""
+        """Get a single item by ID from Ascension DB (via XML API)."""
         cache_key = f"item_{item_id}"
         cached = self._load_cache(cache_key)
         if cached:
             return AscensionItem(**cached)
         
-        url = f"{self.BASE_URL}/?item={item_id}"
+        # Use XML endpoint for reliable data
+        url = f"{self.BASE_URL}/?item={item_id}&xml"
         try:
             time.sleep(0.5)  # Be polite
             response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
             if response.status_code != 200:
                 return None
             
-            soup = BeautifulSoup(response.text, 'html.parser')
+            # Use basic XML parsing (BeautifulSoup with 'xml' or default fallback)
+            # Note: 'xml' parser requires lxml, fallback to 'html.parser' works for simple tags
+            try:
+                soup = BeautifulSoup(response.content, 'xml')
+            except:
+                soup = BeautifulSoup(response.content, 'html.parser')
             
-            name = None
-            
-            # Ascension DB puts name in title: "Name - Item - Ascension Database"
-            if soup.title:
-                title_text = soup.title.string
-                if " - Item -" in title_text:
-                    name = title_text.split(" - Item -")[0]
-            
-            if not name:
-                # Fallback to headers
-                for class_name in ['name', 'heading_1']:
-                    elem = soup.find(class_=class_name)
-                    if elem:
-                        name = elem.get_text(strip=True)
-                        break
-            
-            if not name:
+            item_node = soup.find('item')
+            if not item_node:
                 return None
+                
+            name_node = item_node.find('name')
+            if not name_node:
+                return None
+                
+            name = name_node.get_text(strip=True)
+            
+            # Extract other fields
+            quality_node = item_node.find('quality')
+            quality = int(quality_node['id']) if quality_node and quality_node.has_attr('id') else 0
+            
+            class_node = item_node.find('class')
+            item_class = class_node.get_text(strip=True) if class_node else "Unknown"
+            
+            subclass_node = item_node.find('subclass')
+            item_subclass = subclass_node.get_text(strip=True) if subclass_node else "Unknown"
+            
+            slot_node = item_node.find('inventorySlot')
+            slot = slot_node.get_text(strip=True) if slot_node else "Unknown"
 
             # Create item object
             item = AscensionItem(
                 id=item_id,
                 name=name,
-                item_class="Unknown",  # Harder to parse from just page HTML without complex logic
-                item_subclass="Unknown",
-                quality=1
+                item_class=item_class,
+                item_subclass=item_subclass,
+                slot=slot,
+                quality=quality
             )
             
             self._save_cache(cache_key, item.to_dict())
