@@ -2,6 +2,24 @@
 
 **Created by [Xurkon](https://github.com/Xurkon)**
 
+## [v2.1.3] - 2025-12-11
+
+### Added
+
+- **Recipe Categories**: Added 9 recipe categories (Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Jewelcrafting, Leatherworking, Tailoring).
+- **Additional Consumables**: Added Bandage and Scroll categories.
+- **GUI Category Checkboxes**: Category group headers (⚔ Weapons, ⚗ Consumables, etc.) are now checkboxes that auto-select all items in the category when clicked.
+
+### Fixed
+
+- **Wowhead Subclass Filtering**: Fixed critical bug where consumable/trade goods categories were returning all items instead of filtering by subclass.
+  - Elixirs now correctly return 93 items instead of 911 (all consumables).
+  - Added `CATEGORY_URL_MAP` with pretty URLs for all categories (weapons, consumables, trade goods, gems, recipes).
+  - Added `scrape_by_name()` method for unified category scraping using server-side filtered URLs.
+- **Small Category Scraping**: Lowered array detection threshold from 5000 to 500 chars to catch small categories like First Aid recipes (11 items).
+- **GUI Wowhead Integration**: Fixed `on_server_changed` to properly assign `WowheadScraper` to `self.scraper`.
+- **Category Collapse/Expand**: Fixed expand behavior to properly place items after header frame.
+
 ## [v2.1.2] - 2025-12-11
 
 - **Fixed:** Compiled executable using `gui_modern.py` correctly instead of the legacy `gui.py`. The interface is now the correct Modern/CustomTkinter version.
