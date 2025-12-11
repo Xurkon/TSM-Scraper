@@ -2,6 +2,10 @@
 
 **Created by [Xurkon](https://github.com/Xurkon)**
 
+## [v2.1.2] - 2025-12-11
+
+- **Fixed:** Compiled executable using `gui_modern.py` correctly instead of the legacy `gui.py`. The interface is now the correct Modern/CustomTkinter version.
+
 ## [v2.1.1] - 2025-12-11
 
 - **Fixed:** Resolved Wowhead scraping for Retail, Cataclysm, and MoP by updating CSS selectors.
