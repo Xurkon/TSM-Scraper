@@ -2,7 +2,7 @@
 
 # TSM Item Scraper
 
-![Version](https://img.shields.io/badge/version-v2.1.3-blue.svg)
+![Version](https://img.shields.io/badge/version-v3.2.0-blue.svg)
 ![License](https://img.shields.io/github/license/Xurkon/TSM-Scraper?style=for-the-badge&label=LICENSE&color=2980b9)
 ![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&label=DOWNLOADS&color=e67e22)
 ![Python](https://img.shields.io/badge/PYTHON-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -75,12 +75,14 @@ Automatic backups of your TSM config before every import.
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
-### v2.1.0 - Cross-Server Update
+### v3.2.0 - Feature Merge Update
 
-- Added **all Wowhead versions** (TBC, Cata, MoP Classic)
-- Added **Turtle WoW** database support
-- **Format Selection**: Separate TSM output format from database source
-- **GUI**: Mouse wheel scrolling, theme updates, dialog fixes
+- **Bind Type Filter**: Filter items by BoE, BoP, BoU, BoA, Quest, Warbound
+- **Auto-Create Default Groups**: Generate 145 TSM groups with one click
+- **Group Management**: Right-click groups to Rename, Add Sub-Group, Delete
+- **Profile Management**: Store and switch between up to 5 TSM profiles
+- **Copy Log Button**: Copy current session log to clipboard
+- **Improved Group Display**: Better visual hierarchy with icons and indentation
 
 ## 👥 Credits
 
