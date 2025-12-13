@@ -27,7 +27,6 @@ except ImportError:
     print("CustomTkinter not found. Install with: pip install customtkinter")
     print("Using standard tkinter (less modern look)")
 
-from tsm_scraper.ascension_scraper import AscensionDBScraper
 from tsm_scraper.wowhead_scraper import WowheadScraper
 from tsm_scraper.lua_parser import TSMLuaParser
 from tsm_scraper.lua_writer import TSMLuaWriter
@@ -59,8 +58,9 @@ def get_color(name: str) -> str:
 # Constants
 # ============================================================================
 
-DEFAULT_TSM_PATH = r"c:\Ascension Launcher\resources\client\WTF\Account\Xurkon\SavedVariables\TradeSkillMaster.lua"
+DEFAULT_TSM_PATH = r"C:\Program Files (x86)\World of Warcraft\_retail_\WTF\Account\ACCOUNTNAME\SavedVariables\TradeSkillMaster.lua"
 CONFIG_PATH = Path(__file__).parent / "config" / "gui_config.json"
+LOG_PATH = Path(__file__).parent / "logs" / "scraper.log"
 
 
 # ============================================================================
@@ -195,14 +195,29 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         self.tsm_path = self.config.get("tsm_path", DEFAULT_TSM_PATH)
         
         # Components
-        self.current_server = "Project Ascension"
+        self.current_server = "Ascension (db.ascension.gg)"
         self.current_tsm_format = "classic"  # 'classic' or 'retail'
+        from tsm_scraper.ascension_scraper import AscensionDBScraper
         self.scraper = AscensionDBScraper()
-        self.wowhead_scraper = None  # Lazy init when needed
+        self.wowhead_scraper = WowheadScraper(game_version="wotlk")  # Keep reference for Wowhead
         self.category_vars: Dict[str, ctk.BooleanVar] = {}
         self.scrape_results: Dict[str, dict] = {}
         self.existing_ids: set = set()
         self.group_buttons_registry: Dict[str, ctk.CTkButton] = {}
+        
+        # Bind type filter options: value -> (bonding_id, description)
+        # bonding_id is None for 'All Items', otherwise matches Wowhead's bonding values
+        self.BIND_FILTER_OPTIONS = {
+            "All Items": (None, "No filter - scrape all items"),
+            "Bind on Equip (BoE)": (2, "Tradeable on AH until equipped"),
+            "Bind on Pickup (BoP)": (1, "Soulbound when acquired"),
+            "Bind on Use (BoU)": (3, "Bound when consumed/used"),
+            "Bind to Account (BoA)": (5, "Account-wide heirlooms"),
+            "Quest Items": (4, "Quest-related items"),
+            "Warbound": (6, "Warband-shared items (Retail)"),
+            "No Binding": (0, "Items with no bind restrictions"),
+        }
+        self.bind_filter_var = ctk.StringVar(value="All Items")
         
         # Build UI
         self.create_layout()
@@ -212,7 +227,11 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         try:
             if CONFIG_PATH.exists():
                 with open(CONFIG_PATH, 'r') as f:
-                    return json.load(f)
+                    config = json.load(f)
+                    # Migrate old config format if needed
+                    if "profiles" not in config and "tsm_path" in config:
+                        config["profiles"] = [config["tsm_path"]]
+                    return config
         except:
             pass
         return {}
@@ -220,10 +239,105 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
     def save_config(self):
         try:
             CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            profiles = self.config.get("profiles", [])
+            if self.tsm_path and self.tsm_path not in profiles:
+                profiles.insert(0, self.tsm_path)
+            # Keep only up to 5 profiles
+            profiles = profiles[:5]
+            self.config["profiles"] = profiles
+            self.config["tsm_path"] = self.tsm_path
             with open(CONFIG_PATH, 'w') as f:
-                json.dump({"tsm_path": self.tsm_path}, f, indent=2)
+                json.dump(self.config, f, indent=2)
         except:
             pass
+    
+    def get_profile_names(self) -> list:
+        """Get list of profile display names for dropdown."""
+        profiles = self.config.get("profiles", [])
+        if self.tsm_path and self.tsm_path not in profiles:
+            profiles = [self.tsm_path] + profiles
+        # Return just the filename for display, limit to 5
+        names = []
+        for p in profiles[:5]:
+            try:
+                names.append(Path(p).name)
+            except:
+                names.append(p)
+        return names if names else ["Select profile..."]
+    
+    def get_profile_path_by_name(self, name: str) -> str:
+        """Get full path for a profile display name."""
+        profiles = self.config.get("profiles", [])
+        if self.tsm_path and self.tsm_path not in profiles:
+            profiles = [self.tsm_path] + profiles
+        for p in profiles:
+            try:
+                if Path(p).name == name:
+                    return p
+            except:
+                pass
+        return self.tsm_path
+    
+    def on_profile_changed(self, selection: str):
+        """Handle profile selection change."""
+        if selection == "Select profile...":
+            return
+        
+        new_path = self.get_profile_path_by_name(selection)
+        if new_path and Path(new_path).exists():
+            self.tsm_path = new_path
+            self.save_config()
+            self.load_tsm_info()
+            self.refresh_groups_panel()
+            self.log(f"Switched to profile: {selection}", 'success')
+        else:
+            self.log(f"Profile not found: {selection}", 'error')
+    
+    def open_tsm_folder(self):
+        """Open the TSM SavedVariables folder in file explorer."""
+        import subprocess
+        import os
+        
+        try:
+            folder = Path(self.tsm_path).parent
+            if folder.exists():
+                if sys.platform == 'win32':
+                    os.startfile(str(folder))
+                elif sys.platform == 'darwin':
+                    subprocess.run(['open', str(folder)])
+                else:
+                    subprocess.run(['xdg-open', str(folder)])
+                self.log(f"Opened folder: {folder}", 'success')
+            else:
+                self.log(f"Folder not found: {folder}", 'error')
+        except Exception as e:
+            self.log(f"Error opening folder: {e}", 'error')
+    
+    def remove_current_profile(self):
+        """Remove the current profile from the dropdown list (doesn't delete the file)."""
+        profiles = self.config.get("profiles", [])
+        
+        if len(profiles) <= 1:
+            self.log("Cannot remove the only profile", 'warning')
+            return
+        
+        current_name = self.profile_var.get()
+        current_path = self.get_profile_path_by_name(current_name)
+        
+        if current_path in profiles:
+            profiles.remove(current_path)
+            self.config["profiles"] = profiles
+            
+            # Switch to first remaining profile
+            if profiles:
+                self.tsm_path = profiles[0]
+                self.profile_var.set(Path(profiles[0]).name)
+            
+            self.save_config()
+            self.profile_combo.configure(values=self.get_profile_names())
+            self.load_tsm_info()
+            self.refresh_groups_panel()
+            self.log(f"Removed profile: {current_name}", 'success')
     
     def bind_mousewheel_to_scrollable(self, scrollable_frame):
         """
@@ -357,12 +471,12 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         ).pack(anchor="w")
         
         # Server dropdown
-        self.server_var = ctk.StringVar(value="Project Ascension")
+        self.server_var = ctk.StringVar(value="Ascension (db.ascension.gg)")
         self.server_combo = ctk.CTkComboBox(
             server_section,
             variable=self.server_var,
             values=[
-                "Project Ascension",
+                "Ascension (db.ascension.gg)",
                 "Turtle WoW",
                 "Wowhead (WotLK)",
                 "Wowhead (TBC)",
@@ -425,6 +539,43 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         )
         self.format_info.pack(anchor="w", pady=(2, 0))
         
+        # Bind Type Filter Section
+        bind_frame = ctk.CTkFrame(server_section, fg_color="transparent")
+        bind_frame.pack(fill="x", pady=(8, 0))
+        
+        ctk.CTkLabel(
+            bind_frame,
+            text="🔗 Bind Filter",
+            font=ctk.CTkFont(size=11),
+            text_color=get_color('text_light')
+        ).pack(anchor="w")
+        
+        self.bind_combo = ctk.CTkComboBox(
+            bind_frame,
+            variable=self.bind_filter_var,
+            values=list(self.BIND_FILTER_OPTIONS.keys()),
+            height=26,
+            corner_radius=6,
+            fg_color=get_color('bg_light'),
+            border_color=get_color('border_dark'),
+            button_color=get_color('accent_primary_dark'),
+            button_hover_color=get_color('accent_primary'),
+            dropdown_fg_color=get_color('bg_medium'),
+            dropdown_hover_color=get_color('bg_hover'),
+            font=ctk.CTkFont(size=10),
+            command=self.on_bind_filter_changed
+        )
+        self.bind_combo.pack(fill="x", pady=(4, 0))
+        
+        # Bind filter info label
+        self.bind_info = ctk.CTkLabel(
+            bind_frame,
+            text="No filter - scrape all items",
+            font=ctk.CTkFont(size=9),
+            text_color=get_color('text_gray')
+        )
+        self.bind_info.pack(anchor="w", pady=(2, 0))
+        
         # Separator
         sep0 = ctk.CTkFrame(sidebar, height=2, fg_color=get_color('border_dark'))
         sep0.grid(row=1, column=0, sticky="ew", padx=12, pady=8)
@@ -433,38 +584,69 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         file_section = ctk.CTkFrame(sidebar, fg_color="transparent")
         file_section.grid(row=2, column=0, sticky="ew", padx=12, pady=(0, 8))
         
+        # Header row with folder icon that opens folder
+        header_row = ctk.CTkFrame(file_section, fg_color="transparent")
+        header_row.pack(fill="x")
+        
+        folder_btn = ctk.CTkButton(
+            header_row,
+            text="📁",
+            width=24,
+            height=24,
+            corner_radius=4,
+            fg_color="transparent",
+            hover_color=get_color('bg_hover'),
+            command=self.open_tsm_folder
+        )
+        folder_btn.pack(side="left")
+        
         ctk.CTkLabel(
-            file_section,
-            text="📁 TSM SavedVariables",
+            header_row,
+            text="TSM SavedVariables",
             font=ctk.CTkFont(size=12, weight="bold"),
             text_color=get_color('accent_primary')
-        ).pack(anchor="w")
+        ).pack(side="left", padx=(4, 0))
         
-        # File path row
-        path_frame = ctk.CTkFrame(file_section, fg_color="transparent")
-        path_frame.pack(fill="x", pady=(6, 0))
+        # Profile dropdown (stores up to 5 profiles)
+        profile_frame = ctk.CTkFrame(file_section, fg_color="transparent")
+        profile_frame.pack(fill="x", pady=(6, 0))
         
-        self.tsm_path_var = ctk.StringVar(value=Path(self.tsm_path).name)
-        path_entry = ctk.CTkEntry(
-            path_frame,
-            textvariable=self.tsm_path_var,
+        self.profile_var = ctk.StringVar(value=Path(self.tsm_path).name if Path(self.tsm_path).exists() else "Select profile...")
+        self.profile_combo = ctk.CTkComboBox(
+            profile_frame,
+            variable=self.profile_var,
+            values=self.get_profile_names(),
             height=28,
             corner_radius=6,
             fg_color=get_color('bg_light'),
             border_color=get_color('border_dark'),
-            text_color=get_color('text_light'),
-            font=ctk.CTkFont(size=10)
+            button_color=get_color('accent_primary_dark'),
+            button_hover_color=get_color('accent_primary'),
+            dropdown_fg_color=get_color('bg_medium'),
+            dropdown_hover_color=get_color('bg_hover'),
+            font=ctk.CTkFont(size=10),
+            command=self.on_profile_changed
         )
-        path_entry.pack(side="left", fill="x", expand=True)
+        self.profile_combo.pack(side="left", fill="x", expand=True)
         
         browse_btn = ctk.CTkButton(
-            path_frame, text="...", width=36, height=28,
+            profile_frame, text="...", width=32, height=28,
             corner_radius=6,
             fg_color=get_color('bg_light'),
             hover_color=get_color('bg_hover'),
             command=self.browse_tsm_file
         )
-        browse_btn.pack(side="right", padx=(4, 0))
+        browse_btn.pack(side="right", padx=(2, 0))
+        
+        # Remove profile button
+        remove_btn = ctk.CTkButton(
+            profile_frame, text="🗑️", width=28, height=28,
+            corner_radius=6,
+            fg_color="transparent",
+            hover_color=get_color('color_error'),
+            command=self.remove_current_profile
+        )
+        remove_btn.pack(side="right", padx=(2, 0))
         
         # TSM Info label
         self.tsm_info = ctk.CTkLabel(
@@ -592,6 +774,32 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
             text_color=get_color('text_gray')
         ).pack(side="left")
         
+        # Log folder button
+        log_folder_btn = ctk.CTkButton(
+            log_header,
+            text="📁",
+            width=24,
+            height=20,
+            corner_radius=4,
+            fg_color="transparent",
+            hover_color=get_color('bg_hover'),
+            command=self.open_log_folder
+        )
+        log_folder_btn.pack(side="left", padx=(6, 0))
+        
+        # Copy log button
+        copy_log_btn = ctk.CTkButton(
+            log_header,
+            text="📋",
+            width=24,
+            height=20,
+            corner_radius=4,
+            fg_color="transparent",
+            hover_color=get_color('bg_hover'),
+            command=self.copy_log_to_clipboard
+        )
+        copy_log_btn.pack(side="left", padx=(2, 0))
+        
         # Log text (compact)
         self.log_text = ctk.CTkTextbox(
             center,
@@ -702,6 +910,22 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
             state="disabled"
         )
         self.import_btn.pack(fill="x")
+        
+        # Create Default Groups button
+        self.create_groups_btn = ctk.CTkButton(
+            action_frame,
+            text="✨ Create Default Groups",
+            height=32,
+            corner_radius=8,
+            font=ctk.CTkFont(size=11),
+            fg_color=get_color('bg_dark'),
+            hover_color=get_color('bg_light'),
+            text_color=get_color('text_light'),
+            border_width=1,
+            border_color=get_color('accent_primary'),
+            command=self.create_default_groups
+        )
+        self.create_groups_btn.pack(fill="x", pady=(8, 0))
     
     def refresh_groups_panel(self):
         """Refresh the TSM groups display in the right sidebar."""
@@ -742,33 +966,73 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
                 item_count = group_item_counts.get(group_path, 0)
                 count_str = f" ({item_count})" if item_count > 0 else ""
                 
-                prefix = "  " * indent + ("└ " if indent > 0 else "")
+                # Visual hierarchy with icons and indentation
+                if indent == 0:
+                    # Top-level (Armor, Weapons): large, bold, gold/white
+                    prefix = "📁 "
+                    font_size = 12
+                    font_weight = "bold"
+                    text_color = get_color('accent_gold') if item_count > 0 else get_color('text_light')
+                    height = 28
+                    bg_color = get_color('bg_dark')
+                    left_pad = 2
+                elif indent == 1:
+                    # Category (Cloth, Jewelry): bold, slightly smaller
+                    prefix = "📂 "
+                    font_size = 11
+                    font_weight = "bold"
+                    text_color = get_color('text_light')
+                    height = 26
+                    bg_color = "transparent"
+                    left_pad = 20
+                elif indent == 2:
+                    # Slots (Chest, Rings): normal weight, smaller
+                    prefix = "📄 "
+                    font_size = 10
+                    font_weight = "normal"
+                    text_color = get_color('text_light') if item_count > 0 else get_color('text_gray')
+                    height = 22
+                    bg_color = "transparent"
+                    left_pad = 40
+                else:
+                    # Deeper levels: smallest, gray
+                    prefix = "• "
+                    font_size = 9
+                    font_weight = "normal"
+                    text_color = get_color('text_gray')
+                    height = 20
+                    bg_color = "transparent"
+                    left_pad = 40 + 20 * (indent - 2)
+                
                 text = f"{prefix}{display_name}{count_str}"
                 
                 btn = ctk.CTkButton(
                     self.groups_scroll,
                     text=text,
-                    font=ctk.CTkFont(size=9),
-                    text_color=get_color('text_light') if item_count > 0 else get_color('text_gray'),
-                    fg_color="transparent",
+                    font=ctk.CTkFont(size=font_size, weight=font_weight),
+                    text_color=text_color,
+                    fg_color=bg_color,
                     hover_color=get_color('bg_hover'),
                     anchor="w",
-                    height=22,
+                    height=height,
                     command=lambda g=group_path: self.select_import_group(g)
                 )
-                btn.pack(anchor="w", fill="x", padx=2, pady=1)
+                btn.pack(anchor="w", fill="x", padx=(left_pad, 2), pady=1)
+                
+                # Bind right-click for context menu
+                btn.bind("<Button-3>", lambda e, g=group_path: self.show_group_context_menu(e, g))
                 
                 # Register button for highlighting
                 self.group_buttons_registry[group_path] = btn
                 
-                # Add children
+                # Add children (case-insensitive alphabetical order)
                 children = hierarchy.get(group_path, [])
-                for child in sorted(children):
+                for child in sorted(children, key=lambda x: x.lower()):
                     if child != group_path:
                         add_group_button(child, indent + 1)
             
-            # Start with root groups
-            root_groups = sorted(hierarchy.get('', []))
+            # Start with root groups (case-insensitive alphabetical order)
+            root_groups = sorted(hierarchy.get('', []), key=lambda x: x.lower())
             for root in root_groups:
                 add_group_button(root, 0)
             
@@ -852,6 +1116,137 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         except Exception:
             pass  # Scrolling is optional
     
+    def show_group_context_menu(self, event, group_path: str):
+        """Show right-click context menu for a group."""
+        import tkinter as tk
+        
+        menu = tk.Menu(self, tearoff=0, bg=get_color('bg_medium'), fg=get_color('text_light'),
+                       activebackground=get_color('accent_primary'), activeforeground=get_color('text_white'))
+        
+        menu.add_command(label="📝 Rename Group", command=lambda: self.rename_group_dialog(group_path))
+        menu.add_command(label="➕ Add Sub-Group", command=lambda: self.add_subgroup_dialog(group_path))
+        menu.add_separator()
+        menu.add_command(label="🗑️ Delete Group", command=lambda: self.delete_group_dialog(group_path))
+        
+        try:
+            menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            menu.grab_release()
+    
+    def rename_group_dialog(self, group_path: str):
+        """Show dialog to rename a group."""
+        parts = group_path.split('`')
+        current_name = parts[-1] if parts else group_path
+        
+        dialog = ctk.CTkInputDialog(
+            text=f"Rename '{current_name}' to:",
+            title="Rename Group"
+        )
+        new_name = dialog.get_input()
+        
+        if not new_name or new_name == current_name:
+            return
+        
+        # Build new path
+        if len(parts) > 1:
+            new_path = '`'.join(parts[:-1]) + '`' + new_name
+        else:
+            new_path = new_name
+        
+        try:
+            from tsm_scraper.lua_writer import TSMLuaWriter
+            writer = TSMLuaWriter(self.tsm_path)
+            result = writer.rename_group(group_path, new_path)
+            
+            if result['errors']:
+                self.log(f"Error: {result['errors'][0]}", 'error')
+                return
+            
+            self.log(f"Renamed '{current_name}' to '{new_name}' ({result.get('groups_updated', result.get('items_updated', 0))} references updated)", 'success')
+            self.refresh_groups_panel()
+            
+        except Exception as e:
+            self.log(f"Rename failed: {e}", 'error')
+    
+    
+    def add_subgroup_dialog(self, parent_path: str):
+        """Show dialog to add a sub-group."""
+        dialog = ctk.CTkInputDialog(
+            text=f"New sub-group name under '{parent_path.split('`')[-1]}':",
+            title="Add Sub-Group"
+        )
+        new_name = dialog.get_input()
+        
+        if not new_name:
+            return
+        
+        new_path = f"{parent_path}`{new_name}"
+        
+        try:
+            from tsm_scraper.lua_writer import TSMLuaWriter
+            writer = TSMLuaWriter(self.tsm_path)
+            result = writer.add_groups([new_path])
+            
+            if result['errors']:
+                self.log(f"Error: {result['errors'][0]}", 'error')
+                return
+            
+            if result['added'] > 0:
+                self.log(f"Created group: {new_path}", 'success')
+                self.refresh_groups_panel()
+            else:
+                self.log(f"Group already exists: {new_path}", 'warning')
+                
+        except Exception as e:
+            self.log(f"Failed to add group: {e}", 'error')
+    
+    def delete_group_dialog(self, group_path: str):
+        """Show confirmation dialog to delete a group."""
+        parts = group_path.split('`')
+        group_name = parts[-1] if parts else group_path
+        
+        # First confirmation - delete group and items
+        if not themed_askquestion(
+            self,
+            "🗑️ Delete Group",
+            f"Delete '{group_name}'?\n\n"
+            "This will remove the group, all its sub-groups,\n"
+            "and ALL ITEMS in those groups.\n\n"
+            "A backup will be created before deletion."
+        ):
+            return
+        
+        # Ask if they want to keep the items instead
+        keep_items = themed_askquestion(
+            self,
+            "Keep Items?",
+            "Do you want to KEEP the items?\n\n"
+            "• Yes = Items become uncategorized (not deleted)\n"
+            "• No = Items are removed from TSM entirely"
+        )
+        
+        try:
+            from tsm_scraper.lua_writer import TSMLuaWriter
+            writer = TSMLuaWriter(self.tsm_path)
+            result = writer.delete_group(group_path, delete_items=not keep_items)
+            
+            if result['errors']:
+                self.log(f"Error: {result['errors'][0]}", 'error')
+                return
+            
+            msg = f"Deleted '{group_name}'"
+            if result['subgroups_removed'] > 0:
+                msg += f" (+{result['subgroups_removed']} sub-groups)"
+            if result.get('items_removed', 0) > 0:
+                msg += f" - {result['items_removed']} items removed"
+            elif keep_items:
+                msg += " - items kept"
+            self.log(msg, 'success')
+            self.refresh_groups_panel()
+            
+        except Exception as e:
+            self.log(f"Delete failed: {e}", 'error')
+    
     def auto_select_scrape_group(self):
         """Auto-select the most relevant TSM group based on scrape results."""
         if not self.scrape_results:
@@ -904,32 +1299,31 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
     def on_server_changed(self, selection: str):
         """Handle server/database selection change."""
         server_info = {
-            "Project Ascension": {"url": "db.ascension.gg", "type": "ascension"},
-            "Turtle WoW": {"url": "database.turtle-wow.org", "type": "turtlewow"},
-            "Wowhead (WotLK)": {"url": "wowhead.com/wotlk", "type": "wowhead", "version": "wotlk"},
-            "Wowhead (TBC)": {"url": "wowhead.com/tbc", "type": "wowhead", "version": "tbc"},
-            "Wowhead (Classic Era)": {"url": "classic.wowhead.com", "type": "wowhead", "version": "classic"},
-            "Wowhead (Cata)": {"url": "wowhead.com/cata", "type": "wowhead", "version": "cata"},
-            "Wowhead (MoP Classic)": {"url": "wowhead.com/mop-classic", "type": "wowhead", "version": "mop"},
-            "Wowhead (Retail)": {"url": "www.wowhead.com", "type": "wowhead", "version": "retail"},
+            "Ascension (db.ascension.gg)": {"url": "db.ascension.gg", "scraper": "ascension"},
+            "Turtle WoW": {"url": "database.turtle-wow.org", "scraper": "turtlewow"},
+            "Wowhead (WotLK)": {"url": "wowhead.com/wotlk", "version": "wotlk"},
+            "Wowhead (TBC)": {"url": "wowhead.com/tbc", "version": "tbc"},
+            "Wowhead (Classic Era)": {"url": "classic.wowhead.com", "version": "classic"},
+            "Wowhead (Cata)": {"url": "wowhead.com/cata", "version": "cata"},
+            "Wowhead (MoP Classic)": {"url": "wowhead.com/mop-classic", "version": "mop"},
+            "Wowhead (Retail)": {"url": "www.wowhead.com", "version": "retail"},
         }
         
-        info = server_info.get(selection, {"url": "Unknown", "type": "ascension"})
+        info = server_info.get(selection, {"url": "db.ascension.gg", "scraper": "ascension"})
         self.log(f"Server changed to: {selection} ({info['url']})", 'cyan')
         
         # Store current selection
         self.current_server = selection
         
-        # Switch scraper based on selection
-        if info['type'] == 'ascension':
-            # Use Ascension scraper
+        # Handle different scraper types
+        if info.get('scraper') == 'ascension':
+            from tsm_scraper.ascension_scraper import AscensionDBScraper
             self.scraper = AscensionDBScraper()
             self.log("Using Ascension DB scraper", 'cyan')
-        elif info['type'] == 'turtlewow':
-            # Use Turtle WoW scraper (similar to Ascension)
+        elif info.get('scraper') == 'turtlewow':
             from tsm_scraper.turtlewow_scraper import TurtleWoWScraper
             self.scraper = TurtleWoWScraper()
-            self.log("Using Turtle WoW DB scraper (TSM backport coming soon)", 'cyan')
+            self.log("Using Turtle WoW scraper", 'cyan')
         else:
             # Use Wowhead scraper with appropriate version
             version = info.get('version', 'wotlk')
@@ -967,6 +1361,18 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         # Update format info label
         self.format_info.configure(text=info['description'])
         self.log(f"TSM format set to: {selection} ({info['item_pattern']})", 'cyan')
+    
+    def on_bind_filter_changed(self, selection: str):
+        """Handle bind type filter selection change."""
+        bind_id, description = self.BIND_FILTER_OPTIONS.get(selection, (None, "No filter"))
+        
+        # Update info label
+        self.bind_info.configure(text=description)
+        
+        if bind_id is None:
+            self.log(f"Bind filter: All items (no filter)", 'cyan')
+        else:
+            self.log(f"Bind filter set to: {selection}", 'cyan')
     
     def create_category_list(self):
         """Create category checkboxes grouped by type with collapsible sections."""
@@ -1121,9 +1527,10 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         self.group_expanded[group_name] = not is_expanded
     
     def log(self, message: str, level: str = 'info'):
-        """Add a log message."""
+        """Add a log message to GUI and log file."""
         self.log_text.configure(state="normal")
         timestamp = datetime.now().strftime("%H:%M:%S")
+        full_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         color_map = {
             'info': get_color('text_gray'),
@@ -1136,6 +1543,42 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         self.log_text.insert("end", f"[{timestamp}] {message}\n")
         self.log_text.see("end")
         self.log_text.configure(state="disabled")
+        
+        # Write to log file
+        try:
+            LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            with open(LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(f"[{full_timestamp}] [{level.upper()}] {message}\n")
+        except:
+            pass
+    
+    def open_log_folder(self):
+        """Open the logs folder in file explorer."""
+        import subprocess
+        import os
+        
+        try:
+            LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            folder = LOG_PATH.parent
+            if sys.platform == 'win32':
+                os.startfile(str(folder))
+            elif sys.platform == 'darwin':
+                subprocess.run(['open', str(folder)])
+            else:
+                subprocess.run(['xdg-open', str(folder)])
+        except Exception as e:
+            self.log(f"Error opening log folder: {e}", 'error')
+    
+    def copy_log_to_clipboard(self):
+        """Copy the current session log to clipboard."""
+        try:
+            # Get text from the log textbox (current session only)
+            log_content = self.log_text.get("1.0", "end-1c")
+            self.clipboard_clear()
+            self.clipboard_append(log_content)
+            self.log("Log copied to clipboard", 'success')
+        except Exception as e:
+            self.log(f"Failed to copy log: {e}", 'error')
     
     def load_tsm_info(self):
         """Load TSM file information."""
@@ -1176,9 +1619,13 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         )
         if path:
             self.tsm_path = path
-            self.tsm_path_var.set(Path(path).name)
             self.save_config()
+            # Update profile dropdown with new file
+            self.profile_combo.configure(values=self.get_profile_names())
+            self.profile_var.set(Path(path).name)
             self.load_tsm_info()
+            self.refresh_groups_panel()
+            self.log(f"Loaded profile: {Path(path).name}", 'success')
     
     def select_all(self):
         for v in self.category_vars.values():
@@ -1243,7 +1690,10 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
                 
                 if is_wowhead:
                     # Use unified scrape_by_name method - uses pretty URLs for proper filtering
-                    items = self.scraper.scrape_by_name(cat_name)
+                    # Get the selected bind filter
+                    filter_selection = self.bind_filter_var.get()
+                    bind_id, _ = self.BIND_FILTER_OPTIONS.get(filter_selection, (None, ""))
+                    items = self.scraper.scrape_by_name(cat_name, bonding_filter=bind_id)
                     item_ids = [item.id for item in items]
                 else:
                     # Use Ascension/TurtleWoW scraper methods
@@ -1504,6 +1954,112 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
     def open_settings(self):
         """Open the settings/theme editor dialog."""
         ThemeEditorDialog(self)
+    
+    def create_default_groups(self):
+        """Create default TSM group structure from Wowhead categories."""
+        # Warning confirmation
+        if not themed_askquestion(
+            self,
+            "⚠️ Create Default Groups",
+            "This feature is intended for EMPTY profiles.\n\n"
+            "Creating default groups will ADD 145 new groups to your TSM profile.\n"
+            "This won't delete existing groups, but may create duplicates.\n\n"
+            "Recommended for new profiles only.\n\n"
+            "Continue?"
+        ):
+            return
+        
+        try:
+            from tsm_scraper.wowhead_scraper import generate_tsm_groups
+            from tsm_scraper.lua_writer import TSMLuaWriter
+            
+            groups = generate_tsm_groups()
+            self.log(f"Generated {len(groups)} default groups", 'success')
+            
+            # Inject directly into TSM SavedVariables
+            writer = TSMLuaWriter(self.tsm_path)
+            result = writer.add_groups(groups, dry_run=False)
+            
+            added = result['added']
+            skipped = result['skipped']
+            
+            self.log(f"Added {added} groups, skipped {skipped} existing", 'success')
+            
+            if result['errors']:
+                for error in result['errors']:
+                    self.log(f"Error: {error}", 'error')
+                themed_showinfo(self, "Error", f"Errors occurred:\n{result['errors']}")
+                return
+            
+            # Refresh the groups panel to show new groups
+            self.load_tsm_info()
+            
+            themed_showinfo(
+                self, 
+                "✅ Groups Created", 
+                f"Successfully created {added} groups!\n\n"
+                f"Skipped {skipped} existing groups.\n\n"
+                "If WoW is running, restart it to see changes."
+            )
+            
+        except Exception as e:
+            self.log(f"Error generating groups: {e}", 'error')
+            themed_showinfo(self, "Error", f"Failed to generate groups:\n{e}")
+    
+    def show_groups_popup(self, groups: list):
+        """Show generated groups in a popup window."""
+        popup = ctk.CTkToplevel(self)
+        popup.title("Generated TSM Groups")
+        popup.geometry("500x600")
+        popup.configure(fg_color=get_color('bg_dark'))
+        
+        # Header
+        ctk.CTkLabel(
+            popup,
+            text=f"✨ {len(groups)} Groups Generated",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            text_color=get_color('accent_primary')
+        ).pack(pady=(15, 5))
+        
+        ctk.CTkLabel(
+            popup,
+            text="Copy this text and paste into TSM's group import:",
+            font=ctk.CTkFont(size=11),
+            text_color=get_color('text_gray')
+        ).pack(pady=(0, 10))
+        
+        # Text area with groups
+        text = ctk.CTkTextbox(
+            popup,
+            font=ctk.CTkFont(family="Consolas", size=10),
+            fg_color=get_color('bg_darkest'),
+            text_color=get_color('text_light'),
+            corner_radius=8
+        )
+        text.pack(fill="both", expand=True, padx=15, pady=5)
+        
+        # Format groups as TSM group paths
+        group_text = "\n".join(groups)
+        text.insert("1.0", group_text)
+        
+        # Copy button
+        def copy_to_clipboard():
+            popup.clipboard_clear()
+            popup.clipboard_append(group_text)
+            copy_btn.configure(text="✓ Copied!")
+            popup.after(2000, lambda: copy_btn.configure(text="📋 Copy to Clipboard"))
+        
+        copy_btn = ctk.CTkButton(
+            popup,
+            text="📋 Copy to Clipboard",
+            height=36,
+            corner_radius=8,
+            font=ctk.CTkFont(size=12, weight="bold"),
+            fg_color=get_color('accent_primary'),
+            hover_color=get_color('accent_primary_dark'),
+            command=copy_to_clipboard
+        )
+        copy_btn.pack(pady=15)
 
 
 # ============================================================================

@@ -2,6 +2,33 @@
 
 **Created by [Xurkon](https://github.com/Xurkon)**
 
+## [v3.2.0] - 2025-12-13
+
+### New Features (Merged from TSM-WoWheadScraper)
+
+- **Bind Type Filter**: Full dropdown filter for item binding types (BoE, BoP, BoU, BoA, Quest, Warbound, No Binding)
+- **Auto-Create Default Groups**: "✨ Create Default Groups" button generates 145 TSM groups from category hierarchy
+- **Group Management**: Right-click any group for context menu (Rename, Add Sub-Group, Delete)
+- **Profile Management**: Store and switch between up to 5 TSM SavedVariables profiles
+- **Copy Log Button**: 📋 button copies current session log to clipboard
+- **Improved Group Hierarchy Display**: Better visual distinction between levels
+
+### Bug Fixes
+
+- **Fixed Delete Group**: Brace-counting algorithm properly handles nested structures
+- **Fixed Delete Items**: Items correctly removed when selecting "No" to "Keep Items?"
+- **Fixed Create Default Groups**: Groups properly save for both WotLK and retail TSM formats
+- **Fixed Rename Group**: Verified working with special characters in group names
+
+### Note
+
+Unlike TSM-WoWheadScraper, this version **retains full support for private servers**:
+
+- Project Ascension (db.ascension.gg)
+- Turtle WoW (database.turtle-wow.org)
+
+---
+
 ## [v2.1.3] - 2025-12-11
 
 ### Added

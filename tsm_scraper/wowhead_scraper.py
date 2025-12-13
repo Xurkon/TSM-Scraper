@@ -12,6 +12,87 @@ What this does:
 - Works with retail, classic, and all the expansion-specific sites
 
 The scraper is polite - it waits between requests to avoid getting rate limited.
+
+=== WOWHEAD FILTER REFERENCE ===
+
+BINDING FILTERS (append to URL):
+    BoP: ?filter=2;1;0
+    BoE: ?filter=3;1;0
+    BoU: ?filter=4;1;0
+
+SLOT IDs (use in URL as /slot:X):
+    1=Head, 2=Neck, 3=Shoulder, 4=Shirt, 5=Chest, 6=Waist, 7=Legs, 8=Feet,
+    9=Wrist, 10=Hands, 11=Finger, 12=Trinket, 13=OneHand, 14=Shield, 15=Ranged,
+    16=Back, 17=TwoHand, 18=Bag, 19=Tabard, 21=MainHand, 22=OffHand,
+    23=HeldInOffHand, 24=Ammo, 25=Thrown, 28=Relic
+
+ARMOR TYPE URLS (/items/armor/...):
+    Types (with slots: Chest, Feet, Hands, Head, Legs, Shoulder, Waist, Wrist):
+        /cloth, /leather, /mail, /plate
+    Jewelry:
+        /amulets, /rings, /trinkets
+    Relics:
+        /librams, /idols, /totems, /sigils
+    Other:
+        /cloaks, /off-hand-frills, /shields, /shirts, /tabards, /miscellaneous
+
+ARMOR TYPES (use as /type:X):
+    1=Cloth, 2=Leather, 3=Mail, 4=Plate
+    -2=Idol, -3=Amulet, -4=Totem, -5=OffHandFrill, -6=Cloak, -7=Sigil
+    7=Libram, 8=Relic
+
+WEAPON TYPES (use as /type:X):
+    0=Axe(1H), 1=Axe(2H), 2=Bow, 3=Gun, 4=Mace(1H), 5=Mace(2H), 6=Polearm,
+    7=Sword(1H), 8=Sword(2H), 10=Staff, 13=Fist, 14=Misc, 15=Dagger,
+    16=Thrown, 17=Spear, 18=Crossbow, 19=Wand, 20=FishingPole
+
+WEAPON URLS (/items/weapons/...):
+    /daggers, /fist-weapons, /one-handed-axes, /one-handed-maces, /one-handed-swords,
+    /polearms, /staves, /two-handed-axes, /two-handed-maces, /two-handed-swords,
+    /bows, /crossbows, /guns, /wands, /thrown, /fishing-poles, /miscellaneous
+
+CONTAINER URLS (/items/containers/...):
+    /bags, /cooking-bags, /enchanting-bags, /engineering-bags, /gem-bags,
+    /herb-bags, /inscription-bags, /leatherworking-bags, /mining-bags,
+    /soul-bags, /tackle-boxes
+
+CONSUMABLE URLS (/items/consumables/...):
+    /bandages, /consumables, /flasks, /food-and-drink, /potions, /scrolls, /other
+    /item-enhancements-permanent, /item-enhancements-temporary
+    /elixirs (sub: /elixirs/battle, /elixirs/guardian)
+
+PROJECTILE URLS (/items/projectiles/...):
+    /arrows, /bullets
+
+RECIPE URLS (/items/recipes/...):
+    /books, /alchemy, /blacksmithing, /cooking, /enchanting, /engineering,
+    /first-aid, /fishing, /inscription, /jewelcrafting, /leatherworking, /mining, /tailoring
+
+GEM URLS (/items/gems/...):
+    Colors: /meta, /red, /blue, /yellow, /purple, /green, /orange, /prismatic
+    Other: /simple
+
+MISCELLANEOUS URLS (/items/miscellaneous/...):
+    /armor-tokens, /holiday, /junk, /reagents, /companions, /other
+    /mounts (sub: /mounts/ground, /mounts/flying)
+
+SPECIAL FILTERS:
+    Toys: ?filter=216;1;0
+    Alliance: /side:1
+    Horde: /side:2
+
+ITEM CATEGORIES (/items/...):
+    /armor, /weapons, /containers, /consumables, /glyphs, /trade-goods,
+    /projectiles, /quivers, /recipes, /gems, /miscellaneous, /currency, /quest, /keys
+
+EXAMPLES:
+    BoE Daggers: /items/weapons/daggers?filter=3;1;0
+    BoE Cloth Chest: /items/armor/cloth/slot:5?filter=3;1;0
+    BoP Staves: /items/weapons/staves?filter=2;1;0
+    Idols: /items/armor/idols
+    Rings: /items/armor/rings
+    Toys: /items?filter=216;1;0
+    Alliance Toys: /items/side:1?filter=216;1;0
 """
 
 import re
@@ -35,6 +116,102 @@ except ImportError:
 GameVersion = Literal['retail', 'wotlk', 'tbc', 'classic', 'cata', 'mop']
 
 
+# TSM Group Structure - Maps Wowhead categories to TSM group hierarchy
+# Used by generate_tsm_groups() to create default group structure
+TSM_GROUP_STRUCTURE = {
+    "Armor": {
+        "Cloth": ["Chest", "Feet", "Hands", "Head", "Legs", "Shoulder", "Waist", "Wrist"],
+        "Leather": ["Chest", "Feet", "Hands", "Head", "Legs", "Shoulder", "Waist", "Wrist"],
+        "Mail": ["Chest", "Feet", "Hands", "Head", "Legs", "Shoulder", "Waist", "Wrist"],
+        "Plate": ["Chest", "Feet", "Hands", "Head", "Legs", "Shoulder", "Waist", "Wrist"],
+        "Jewelry": ["Amulets", "Rings", "Trinkets"],
+        "Relics": ["Librams", "Idols", "Totems", "Sigils"],
+        "Other": ["Cloaks", "Off-hand Frills", "Shields", "Shirts", "Tabards", "Miscellaneous"],
+    },
+    "Weapons": {
+        "One-Handed": ["Axes", "Maces", "Swords", "Daggers", "Fist Weapons"],
+        "Two-Handed": ["Axes", "Maces", "Swords", "Polearms", "Staves"],
+        "Ranged": ["Bows", "Crossbows", "Guns", "Wands", "Thrown"],
+        "Other": ["Fishing Poles", "Miscellaneous"],
+    },
+    "Consumables": {
+        "Potions": [],
+        "Elixirs": ["Battle", "Guardian"],
+        "Flasks": [],
+        "Food and Drink": [],
+        "Bandages": [],
+        "Scrolls": [],
+        "Item Enhancements": ["Permanent", "Temporary"],
+        "Other": [],
+    },
+    "Gems": {
+        "Colors": ["Meta", "Red", "Blue", "Yellow", "Purple", "Green", "Orange", "Prismatic"],
+        "Other": ["Simple"],
+    },
+    "Recipes": {
+        "Alchemy": [],
+        "Blacksmithing": [],
+        "Cooking": [],
+        "Enchanting": [],
+        "Engineering": [],
+        "First Aid": [],
+        "Fishing": [],
+        "Inscription": [],
+        "Jewelcrafting": [],
+        "Leatherworking": [],
+        "Mining": [],
+        "Tailoring": [],
+        "Books": [],
+    },
+    "Containers": {
+        "Bags": [],
+        "Profession Bags": ["Cooking", "Enchanting", "Engineering", "Gem", "Herb", 
+                           "Inscription", "Leatherworking", "Mining", "Soul", "Tackle"],
+    },
+    "Trade Goods": [],
+    "Miscellaneous": {
+        "Mounts": ["Ground", "Flying"],
+        "Companions": [],
+        "Toys": [],
+        "Holiday": [],
+        "Junk": [],
+        "Reagents": [],
+        "Armor Tokens": [],
+        "Other": [],
+    },
+    "Projectiles": ["Arrows", "Bullets"],
+    "Glyphs": [],
+    "Quest Items": [],
+    "Keys": [],
+}
+
+
+def generate_tsm_groups(structure: dict = None, prefix: str = "") -> List[str]:
+    """
+    Generate a list of TSM group paths from the group structure.
+    
+    Returns a list of strings using TSM's backtick separator:
+        ["Armor", "Armor`Cloth", "Armor`Cloth`Chest", ...]
+    """
+    if structure is None:
+        structure = TSM_GROUP_STRUCTURE
+    
+    groups = []
+    for key, value in structure.items():
+        current_path = f"{prefix}`{key}" if prefix else key
+        groups.append(current_path)
+        
+        if isinstance(value, dict):
+            # Nested dictionary - recurse
+            groups.extend(generate_tsm_groups(value, current_path))
+        elif isinstance(value, list) and value:
+            # List of leaf nodes
+            for item in value:
+                groups.append(f"{current_path}`{item}")
+    
+    return groups
+
+
 @dataclass
 class WowItem:
     """
@@ -51,6 +228,7 @@ class WowItem:
     quality: int = 0          # Rarity: 0=Poor(gray), 1=Common(white), 2=Uncommon(green), 
                               #         3=Rare(blue), 4=Epic(purple), 5=Legendary(orange)
     level: int = 0            # Required level to use the item
+    bonding: int = 0          # Bind type: 0=None, 1=BoP, 2=BoE, 3=BoU, 4=Quest
     
     def to_dict(self) -> dict:
         """Convert to a plain dict for JSON serialization."""
@@ -61,7 +239,8 @@ class WowItem:
             'item_subclass': self.item_subclass,
             'slot': self.slot,
             'quality': self.quality,
-            'level': self.level
+            'level': self.level,
+            'bonding': self.bonding
         }
 
 
@@ -351,6 +530,24 @@ class WowheadScraper:
                         item.quality = int(match.group(1))
                     break
             
+            # Extract bonding from tooltip (not full page text to avoid false positives)
+            # Wowhead tooltip has binding in format: <!--bo--><br>Binds when X<!--ue-->
+            page_text = response.text
+            bo_match = re.search(r'<!--bo-->.*?Binds when (equipped|picked up|used)', page_text, re.IGNORECASE)
+            if bo_match:
+                bind_type = bo_match.group(1).lower()
+                if "equipped" in bind_type:
+                    item.bonding = 2  # BoE
+                elif "picked up" in bind_type:
+                    item.bonding = 1  # BoP
+                elif "used" in bind_type:
+                    item.bonding = 3  # BoU
+            elif "Binds to account" in page_text or "Binds to Blizzard" in page_text:
+                item.bonding = 5  # BoA
+            elif "Quest Item" in page_text:
+                item.bonding = 4  # Quest
+            # else bonding stays 0 (no binding)
+            
             self._save_cache(cache_key, item.to_dict())
             return item
             
@@ -358,12 +555,21 @@ class WowheadScraper:
             print(f"Error fetching item {item_id}: {e}")
             return None
     
-    def _scrape_category_url(self, url: str, limit: int = 10000) -> List[WowItem]:
+    def _scrape_category_url(self, url: str, limit: int = 10000, bonding_filter: int = None) -> List[WowItem]:
         """
         Scrape items from a Wowhead category URL using the pretty URL format.
         This works better than the filter URL format as Wowhead properly pre-filters items.
+        
+        Args:
+            url: The Wowhead category URL to scrape
+            limit: Maximum number of items to return
+            bonding_filter: If set, only return items with this bonding value:
+                            0=No binding, 1=BoP, 2=BoE, 3=BoU, 4=Quest, 5=BoA, 6=Warbound
+                            If None, returns all items (no filter)
         """
-        cache_key = f"{self.game_version}_url_{url.split('/')[-1]}"
+        # Include bonding filter in cache key so we cache filtered results separately
+        cache_suffix = f"_bind{bonding_filter}" if bonding_filter is not None else ""
+        cache_key = f"{self.game_version}_url_{url.split('/')[-1]}{cache_suffix}"
         cached = self._load_cache(cache_key)
         if cached:
             items = [WowItem(**item_data) for item_data in cached.get('items', [])]
@@ -385,6 +591,12 @@ class WowheadScraper:
                         data_list = json.loads(arr_str)
                         for d in data_list:
                             if 'id' in d and 'name' in d:
+                                bonding = d.get('bonding', 0)
+                                
+                                # Filter by bonding type if specified
+                                if bonding_filter is not None and bonding != bonding_filter:
+                                    continue
+                                
                                 item = WowItem(
                                     id=int(d['id']),
                                     name=d['name'],
@@ -392,7 +604,8 @@ class WowheadScraper:
                                     item_subclass="",
                                     slot="",
                                     quality=d.get('quality', 0),
-                                    level=d.get('level', 0)
+                                    level=d.get('level', 0),
+                                    bonding=bonding
                                 )
                                 items.append(item)
                                 if len(items) >= limit:
@@ -417,6 +630,41 @@ class WowheadScraper:
                                 continue
                     if items:
                         break
+            
+            # Fallback: If no items found from JSON arrays, extract ID+Name pairs directly
+            # This handles filtered pages where Wowhead doesn't embed large JSON arrays
+            # Use tight regex to only match actual item objects (id and name close together)
+            if not items:
+                seen_ids = set()
+                # Match item objects like {"id":12345,...,"name":"Item Name"} with limited chars between
+                for id_match in re.finditer(r'\{"id":(\d+)[^}]{0,100}"name":"([^"]+)"', response.text):
+                    try:
+                        item_id = int(id_match.group(1))
+                        name = id_match.group(2)
+                        
+                        # Skip non-item data (Wowhead metadata uses low IDs)
+                        # Real WoW items start around ID 700+ (e.g., 769=Thug Boots)
+                        if item_id < 700:
+                            continue
+                        # Skip obvious non-item names
+                        if name in ['Available', 'Binds when picked', 'Added in patch', 'Added in build']:
+                            continue
+                            
+                        if item_id in seen_ids:
+                            continue
+                        seen_ids.add(item_id)
+                        item = WowItem(
+                            id=item_id,
+                            name=name,
+                            item_class="",
+                            item_subclass="",
+                            slot=""
+                        )
+                        items.append(item)
+                        if len(items) >= limit:
+                            break
+                    except:
+                        continue
             
             # Cache the results
             self._save_cache(cache_key, {'items': [item.to_dict() for item in items]})
@@ -685,17 +933,46 @@ class WowheadScraper:
         "recipe_tailoring": "items/recipes/tailoring",
     }
     
-    def scrape_by_name(self, category_name: str, limit: int = 10000) -> List[WowItem]:
+    def scrape_by_name(self, category_name: str, limit: int = 10000, bonding_filter: int = None) -> List[WowItem]:
         """
         Scrape any category by its name using pretty URLs.
         This is the recommended method for all category scraping as it ensures proper filtering.
+        
+        Args:
+            category_name: The category to scrape (e.g., 'dagger', 'potion', 'cloth_helm')
+            limit: Maximum number of items to return
+            bonding_filter: Filter by bind type (0=None, 1=BoP, 2=BoE, 3=BoU, 4=Quest, 5=BoA, 6=Warbound)
+                           Note: Filtering requires individual item lookups (slower but accurate)
         """
         url_path = self.CATEGORY_URL_MAP.get(category_name.lower())
         if url_path is None:
             print(f"Unknown category: {category_name}")
             return []
         
-        return self._scrape_category_url(f"{self.base_url}/{url_path}", limit=limit)
+        url = f"{self.base_url}/{url_path}"
+        
+        # Fast path: No bonding filter - just scrape the category
+        if bonding_filter is None:
+            return self._scrape_category_url(url, limit=limit)
+        
+        # Fast path with filter: Use Wowhead's URL filter parameter
+        # Each binding type uses a DIFFERENT filter ID (not different values)
+        # BoP=filter 2, BoE=filter 3, BoU=filter 4 - all use value 0
+        # Format: filter=X;1;0 where X=filter ID, 1=equals, 0=yes
+        BINDING_FILTER_MAP = {
+            1: 2,  # BoP (bonding=1) -> filter=2
+            2: 3,  # BoE (bonding=2) -> filter=3
+            3: 4,  # BoU (bonding=3) -> filter=4
+        }
+        
+        filter_id = BINDING_FILTER_MAP.get(bonding_filter)
+        if filter_id is None:
+            print(f"Unsupported bonding filter: {bonding_filter} (only BoP=1, BoE=2, BoU=3 supported)")
+            return self._scrape_category_url(url, limit=limit)
+        
+        filter_url = f"{url}?filter={filter_id};1;0"
+        print(f"Scraping with filter={filter_id} (bonding type {bonding_filter})...")
+        return self._scrape_category_url(filter_url, limit=limit)
     
     def scrape_armor(self, armor_type: str, slot: str, limit: int = 100) -> List[WowItem]:
         """
