@@ -75,6 +75,12 @@ Automatic backups of your TSM config before every import.
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
+### v3.3.3 - Config and Display Fix
+
+- **Version Display**: Window title now shows version number
+- **Config Loading Fix**: Fixed config/log paths for compiled exe
+- **Ascension TSM Support**: Proper format detection and group creation
+
 ### v3.3.0 - UI Overhaul
 
 - **Manual Item IDs**: Add/remove specific item IDs with single entry, paste list, or remove mode
