@@ -2,6 +2,16 @@
 
 **Created by [Xurkon](https://github.com/Xurkon)**
 
+## [v3.3.5] - 2025-12-16
+
+### New Features
+
+- **Refresh Button**: Added 🔄 button to reload TSM SavedVariables file without restarting
+  - Click after `/reload` in WoW to see newly created groups
+  - Located next to the profile dropdown
+
+---
+
 ## [v3.3.4] - 2025-12-16
 
 ### Bug Fixes

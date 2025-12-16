@@ -2,7 +2,7 @@
 
 # TSM Item Scraper
 
-![Version](https://img.shields.io/badge/version-v3.3.4-blue.svg)
+![Version](https://img.shields.io/badge/version-v3.3.5-blue.svg)
 ![License](https://img.shields.io/github/license/Xurkon/TSM-Scraper?style=for-the-badge&label=LICENSE&color=2980b9)
 ![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&label=DOWNLOADS&color=e67e22)
 ![Python](https://img.shields.io/badge/PYTHON-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -74,6 +74,11 @@ Automatic backups of your TSM config before every import.
 ## 📜 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+### v3.3.5 - Refresh Button
+
+- **Added Refresh Button**: Click 🔄 next to profile dropdown to reload SavedVariables file
+- Useful after doing `/reload` in WoW to see new groups
 
 ### v3.3.4 - Group Parsing Fix
 
