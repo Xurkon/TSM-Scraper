@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+
+# Build artifacts
+build/
+dist/
+*.spec
+
+# Source files (zip source then upload, don't upload raw source)
+*.py
+tsm_scraper/
+theme_manager.py
+batch_import.py
+quick_import.py
+gui.py
+gui_modern.py
+
+# Data files
+cache/
+logs/
+config/
+*.lua
+TradeSkillMasterBackup.lua
