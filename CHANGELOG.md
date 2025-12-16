@@ -2,6 +2,16 @@
 
 **Created by [Xurkon](https://github.com/Xurkon)**
 
+## [v3.3.4] - 2025-12-16
+
+### Bug Fixes
+
+- **Fixed Ascension Group Detection**: Groups without backticks (like 'testing') now properly detected
+  - Parser now looks inside `profiles.Default.groups` section for Ascension TSM format
+  - Filters out operation names (Mailing, Auctioning, etc.)
+
+---
+
 ## [v3.3.3] - 2025-12-16
 
 ### Bug Fixes
