@@ -2,6 +2,14 @@
 
 **Created by [Xurkon](https://github.com/Xurkon)**
 
+## [v3.4.1] - 2025-12-16
+
+### Bug Fixes
+
+- **Fixed Pane Position Memory**: Column divider positions now properly saved and restored across sessions
+
+---
+
 ## [v3.4.0] - 2025-12-16
 
 ### New Features
