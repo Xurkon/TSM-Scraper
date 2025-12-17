@@ -1,3 +1,15 @@
+## [v3.4.6] - 2025-12-17
+
+### Improvements
+
+- **Added Version Info to Executable**: Right-click → Properties → Details now shows product name, version, and company
+  - Helps reduce Windows SmartScreen "unknown publisher" warnings
+- **No Admin Rights Required**: Config and log files now stored in `%APPDATA%\TSM Scraper`
+  - App works without admin privileges regardless of install location
+  - Fixes issue where default groups required running as administrator
+
+---
+
 ## [v3.4.5] - 2025-12-17
 
 ### Bug Fixes
@@ -7,6 +19,7 @@
   - Handles deeply nested group structures correctly
 
 ---
+
 
 ## [v3.4.4] - 2025-12-17
 
