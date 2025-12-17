@@ -71,6 +71,18 @@ Automatic backups of your TSM config before every import.
 4. **Scrape**: Click the **🔍 Scrape Items** button
 5. **Import**: Review new items and click **📥 Import to TSM**
 
+## 📁 File Locations
+
+Configuration and log files are stored in your Windows AppData folder:
+
+| File | Location |
+|------|----------|
+| **Config** | `%APPDATA%\TSM Scraper\config\gui_config.json` |
+| **Logs** | `%APPDATA%\TSM Scraper\logs\scraper.log` |
+
+To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press Enter.
+
+
 ## 📜 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
