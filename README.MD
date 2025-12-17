@@ -87,12 +87,11 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press En
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
-### v3.4.3 - Bug Fixes
+### v3.4.6 - No Admin Rights Required
 
-- **Fixed Group Collapse**: Collapse All button now properly collapses parent groups and hides children
-- **Fixed Expand Icons**: Groups with children now show expand/collapse arrows
-- **Optimized Loading**: Reduced UI hang when loading large SavedVariables files
-- **Fixed Theme**: Expanded item backgrounds now match the app theme
+- **Added Version Info to Executable**: Right-click → Properties → Details now shows product info
+- **No Admin Rights Required**: Config/logs now stored in `%APPDATA%\TSM Scraper`
+- Fixes issue where default groups required running as administrator
 
 ### v3.3.4 - Group Parsing Fix
 
