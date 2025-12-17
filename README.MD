@@ -2,7 +2,7 @@
 
 # TSM Item Scraper
 
-![Version](https://img.shields.io/badge/version-v3.4.6-blue.svg)
+![Version](https://img.shields.io/badge/version-v3.4.7-blue.svg)
 ![License](https://img.shields.io/github/license/Xurkon/TSM-Scraper?style=for-the-badge&label=LICENSE&color=2980b9)
 ![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&label=DOWNLOADS&color=e67e22)
 ![Python](https://img.shields.io/badge/PYTHON-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -87,11 +87,10 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press En
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
-### v3.4.6 - No Admin Rights Required
+### v3.4.7 - Empty Profile Fix
 
-- **Added Version Info to Executable**: Right-click → Properties → Details now shows product info
-- **No Admin Rights Required**: Config/logs now stored in `%APPDATA%\TSM Scraper`
-- Fixes issue where default groups required running as administrator
+- **Fixed Import to Empty Profiles**: Items can now be imported after creating default groups
+- Previously failed with "Could not find [S] table" error
 
 ### v3.3.4 - Group Parsing Fix
 

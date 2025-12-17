@@ -1,3 +1,13 @@
+## [v3.4.7] - 2025-12-17
+
+### Bug Fixes
+
+- **Fixed Import to Empty Profiles**: Items can now be imported to profiles with 0 existing items
+  - Previously failed with "Could not find [S] table" error after creating default groups
+  - Now correctly finds the `["S"]` table opening as insertion point
+
+---
+
 ## [v3.4.6] - 2025-12-17
 
 ### Improvements
