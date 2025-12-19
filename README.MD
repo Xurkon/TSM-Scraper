@@ -2,7 +2,7 @@
 
 # TSM Item Scraper
 
-![Version](https://img.shields.io/badge/version-v3.4.15-blue.svg)
+![Version](https://img.shields.io/badge/version-v3.4.17-blue.svg)
 ![License](https://img.shields.io/github/license/Xurkon/TSM-Scraper?style=for-the-badge&label=LICENSE&color=2980b9)
 ![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&label=DOWNLOADS&color=e67e22)
 ![Python](https://img.shields.io/badge/PYTHON-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -86,6 +86,15 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press En
 ## 📜 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+### v3.4.17 - BoP Filter Removal
+
+- **Removed BoP Filter**: Removed "Bind on Pickup (BoP)" option to simplify scraping and avoid missing tradeable items.
+
+### v3.4.16 - Wowhead Scraper Fix
+
+- **Fixed Small Category Detection**: WoWhead scraper now correctly returns items for small categories (e.g., BoE Crossbows)
+- **Improved JSON Parsing**: Enhanced handling of Wowhead JS objects with unquoted keys
 
 ### v3.4.15 - NameError Fix
 
