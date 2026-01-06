@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.20] - 2026-01-06
+### Fixed
+- Fixed critical `groupTreeStatus` key format: now uses SOH (0x01) separator instead of space, matching actual TSM format.
+- Fixed `groupTreeStatus` key generation to build cumulative path chain (e.g., `1\x01GroupName\x01GroupName\`SubGroup`).
+- Reverted Auctioning operation template from "AlwaysUndercut" to empty string to match native TSM behavior.
+
 ## [3.4.15] - 2025-12-18
 ### Fixed
 - Fixed critical `NameError` in `lua_writer.py` when verifying group existence.
