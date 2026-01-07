@@ -8,7 +8,7 @@
 
 # TSM Item Scraper
 
-![Version](https://img.shields.io/badge/version-v3.4.7-blue.svg?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-v3.4.20-blue.svg?style=for-the-badge)
 ![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&color=e67e22)
 [![Documentation](https://img.shields.io/badge/Documentation-View%20Docs-58a6ff?style=for-the-badge)](https://xurkon.github.io/TSM-Scraper/)
 [![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/Xurkon)
@@ -18,7 +18,6 @@
 ![Platform](https://img.shields.io/badge/PLATFORM-WINDOWS-blue?style=for-the-badge&logo=windows&logoColor=white)
 
 <br/>
-         This is still very much a beta and needs lots of testing and fixes! Currently broken and corrupting saved variables, beware! <br/>
 **Cross-server Item Scraping Tool for TradeSkillMaster on Project Ascension & Retail**
 
 [⬇ **Download Latest**](https://github.com/Xurkon/TSM-Scraper/releases/latest) &nbsp;&nbsp;•&nbsp;&nbsp; [📂 **View Source**](https://github.com/Xurkon/TSM-Scraper) &nbsp;&nbsp;•&nbsp;&nbsp; [📖 **Read Documentation**](https://xurkon.github.io/TSM-Scraper/)
