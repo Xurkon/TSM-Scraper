@@ -1,29 +1,5 @@
 # Changelog
 
-## [3.4.22] - 2026-01-07
-### Fixed
-- **Fixed Ascension DB URL filtering**: Armor slot filtering now correctly uses `&filter=sl=X` parameter instead of appending to items path (e.g., `?items=4.1&filter=sl=1` instead of `?items=4.1.1`).
-- **Fixed armor "other" categories**: Cloaks, offhand, tabards, shirts now use correct negative subclass IDs (e.g., `?items=4.-6` for cloaks).
-- **Fixed bind filter combination with slot filter**: Filter parts are now properly combined (e.g., `&filter=cr=3;crs=1;crv=0;sl=1`).
-
-### Added
-- **New armor categories**: amulet, ring, trinket, idol, libram, totem, sigil, armor_misc
-- **New consumable categories**: elixir_battle, elixir_guardian, item_enhancement, item_enhancement_temp, consumable_other
-- **New trade goods categories**: trade_parts, trade_explosives, trade_devices, trade_other, trade_materials, armor_enchantment, weapon_enchantment
-- **New recipe categories**: recipe_book, recipe_fishing, recipe_inscription, recipe_mining
-- **Full gem categories**: gem_red, gem_blue, gem_yellow, gem_purple, gem_green, gem_orange, gem_meta, gem_simple, gem_prismatic
-- **Full container categories**: soul_bag, herb_bag, enchanting_bag, engineering_bag, gem_bag, mining_bag, leatherworking_bag, inscription_bag
-- **Quiver categories**: quiver, quiver_arrows, ammo_pouch
-- **Glyph categories**: All class-specific glyphs (warrior, paladin, hunter, rogue, priest, dk, shaman, mage, warlock, druid)
-- **Ascension pet whistles**: beastmaster, blood_soaked, summoner, draconic, elemental
-- **Additional categories**: quest, key, currency, misc
-
-## [3.4.21] - 2026-01-06
-### Fixed
-- **Fixed group deletion leaving blank lines**: Added cleanup logic to remove consecutive blank lines after deleting groups/items, preventing file bloat from repeated deletions.
-- **Fixed blank lines inside empty tables**: Regex cleanup now removes blank lines between opening brace and closing brace (e.g., `["items"] = { }` stays clean).
-- **Improved UI state reference cleanup**: Delete function now properly removes all `= true`/`= false` references to deleted groups.
-
 ## [3.4.20] - 2026-01-06
 ### Fixed
 - Fixed critical `groupTreeStatus` key format: now uses SOH (0x01) separator instead of space, matching actual TSM format.
