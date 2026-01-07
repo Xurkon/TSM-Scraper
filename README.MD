@@ -95,21 +95,24 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press En
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
+### v3.4.22 - Ascension DB Filtering Fix & Category Expansion
+
+- **Fixed Ascension DB URL filtering**: Armor slot filtering now correctly uses `&filter=sl=X` parameter
+- **Fixed armor "other" categories**: Cloaks, offhand, tabards, shirts now use correct negative subclass IDs
+- **Fixed bind filter combination**: Filter parts now properly combined with slot filters
+- **Fixed group deletion**: No longer leaves blank lines in SavedVariables
+- **60+ new categories**: Full gem colors, containers, glyphs, consumables, trade goods, recipes, pet whistles
+
+### v3.4.20 - TSM Format & Bind Filter Fix
+
+- **Fixed groupTreeStatus key format**: Now uses SOH separator matching actual TSM format
+- **Fixed Ascension DB bind filter**: BoE/BoP/BoU filter now properly appends to category URLs
+- **Wowhead to Ascension name matching**: New item resolution functions
+- **New Ascension categories**: vanity, mounts, currency, bundles, appearances, heirlooms
+
 ### v3.4.7 - Empty Profile Fix
 
 - **Fixed Import to Empty Profiles**: Items can now be imported after creating default groups
-- Previously failed with "Could not find [S] table" error
-
-### v3.3.4 - Group Parsing Fix
-
-- **Fixed Ascension Group Detection**: Groups without backticks (like 'testing') now properly detected
-- Parses groups from Ascension's `profiles.Default.groups` section
-
-### v3.3.3 - Config and Display Fix
-
-- **Version Display**: Window title now shows version number
-- **Config Loading Fix**: Fixed config/log paths for compiled exe
-- **Ascension TSM Support**: Proper format detection and group creation
 
 ### v3.3.0 - UI Overhaul
 
