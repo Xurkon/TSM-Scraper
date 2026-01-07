@@ -5,6 +5,11 @@
 - Fixed critical `groupTreeStatus` key format: now uses SOH (0x01) separator instead of space, matching actual TSM format.
 - Fixed `groupTreeStatus` key generation to build cumulative path chain (e.g., `1\x01GroupName\x01GroupName\`SubGroup`).
 - Reverted Auctioning operation template from "AlwaysUndercut" to empty string to match native TSM behavior.
+- **Fixed Ascension DB bind filter**: BoE/BoP/BoU filter now properly appends `&filter=cr=X;crs=1;crv=0` to category URLs.
+
+### Added
+- **Wowhead to Ascension name matching**: New `search_by_name()` and `resolve_wowhead_items()` functions to resolve Wowhead item names to Ascension IDs.
+- New categories: offhand (`4.-5`), misc weapons (`2.14`), vanity (`100`).
 
 ## [3.4.15] - 2025-12-18
 ### Fixed

@@ -45,3 +45,14 @@
 - [x] Recompile with Modern GUI (`gui_modern.py`)
 - [x] Create GitHub Release v2.1.2
 - [x] Handover to user for final repo management
+
+### v3.4.20 - Critical Lua Writer Fix
+
+- [x] Analyze TradeSkillMaster.lua structure for correct format
+- [x] Fix groupTreeStatus separator (SOH 0x01 instead of space)
+- [x] Fix groupTreeStatus key generation (cumulative path chain)
+- [x] Fix Auctioning operation template (empty string instead of AlwaysUndercut)
+- [x] Verify all group templates use proper structure
+- [x] Update CHANGELOG.md
+- [x] Build new executable
+

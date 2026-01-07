@@ -1,63 +1,55 @@
-# TSM Scraper Walkthrough - v3.4.18
+# TSM Scraper Walkthrough - v3.4.20
 
-## Latest Changes: Linux/Wine Compatibility
+## Latest Changes: Critical Lua Writer Fix
 
-### What Was Implemented
+### What Was Fixed
 
-#### 1. Wine/Bottles/Proton Detection
+#### 1. groupTreeStatus Separator
 
-Added `_detect_wine_or_linux()` function in [gui_modern.py](file:///c:/Ascension%20Launcher/resources/client/TSMItemScraper/gui_modern.py):
+Fixed the key format in `groupTreeStatus.groups` table in [lua_writer.py](file:///C:/Ascension%20Launcher/resources/client/TSMItemScraper/tsm_scraper/lua_writer.py):
 
-- Checks Wine environment variables (`WINEPREFIX`, `WINELOADER`, etc.)
-- Detects `/proc/version` (Linux-only file)
-- Checks for Wine's Z: drive mappings (`Z:/.wine`, `Z:/home`)
+**Before (Broken):**
+```lua
+["1 TestGroup"] = true,
+["1 TestGroup TestGroup`SubGroup"] = true,
+```
 
-#### 2. Smart Path Fallback
+**After (Correct):**
+```lua
+["1\x01TestGroup"] = true,
+["1\x01TestGroup\x01TestGroup`SubGroup"] = true,
+```
 
-Added `_get_app_data_path()` function:
+The separator is ASCII SOH (0x01), not a space character.
 
-- **On Windows**: Uses `%APPDATA%\TSM Scraper\`
-- **On Wine/Linux**: Uses local `./appdata/` folder in scraper directory
-- Tests write access before committing to path
-- Graceful fallback if directory creation fails
+#### 2. Cumulative Path Chain
 
-#### 3. Crash Logging
+groupTreeStatus keys now build a cumulative path chain:
+- `1\x01GroupName`
+- `1\x01GroupName\x01GroupName`SubGroup``
+- `1\x01GroupName\x01GroupName`SubGroup`\x01GroupName`SubGroup`SubSub``
 
-Added `_write_crash_log()` function:
+#### 3. Auctioning Operation Template
 
-- Creates `crash_log.txt` in scraper directory on any unhandled exception
-- Includes full stack trace, Python version, environment info
-- Shows Wine detection status for debugging
-
----
-
-## Cross-Server Scraping Features
-
-### Multi-Version Wowhead Scraper
-
-- **Retail**: `https://www.wowhead.com`
-- **WotLK**: `https://www.wowhead.com/wotlk`  
-- **Classic**: `https://www.wowhead.com/classic`
-- **Ascension**: `https://db.ascension.gg`
-
-### Dual-Format Output
-
-- **Classic format**: `item:12345:0:0:0:0:0:0`
-- **Retail format**: `i:12345`
+Reverted the default Auctioning operation from `"AlwaysUndercut"` back to empty string `""` to match native TSM behavior.
 
 ---
 
-## File Locations
+## Previous Changes
 
-| Platform | Config | Logs | Crash Log |
-|----------|--------|------|-----------|
-| **Windows** | `%APPDATA%\TSM Scraper\config\` | `%APPDATA%\TSM Scraper\logs\` | N/A |
-| **Linux/Wine** | `./appdata/config/` | `./appdata/logs/` | `./crash_log.txt` |
+### v3.4.18 - Linux/Wine Compatibility
+
+- Wine/Bottles/Proton detection
+- Smart path fallback for config/logs
+- Crash logging for debugging
+
+### v3.4.15 - NameError Fix
+
+- Fixed critical crash in lua_writer.py
 
 ---
 
-## Files Modified in v3.4.18
+## Files Modified in v3.4.20
 
-- [gui_modern.py](file:///c:/Ascension%20Launcher/resources/client/TSMItemScraper/gui_modern.py) - Wine detection, crash logging
-- [CHANGELOG.md](file:///c:/Ascension%20Launcher/resources/client/TSMItemScraper/CHANGELOG.md) - Version history
-- [README.MD](file:///c:/Ascension%20Launcher/resources/client/TSMItemScraper/README.MD) - Linux compatibility section
+- [lua_writer.py](file:///C:/Ascension%20Launcher/resources/client/TSMItemScraper/tsm_scraper/lua_writer.py) - Fixed groupTreeStatus separator, operation templates
+- [CHANGELOG.md](file:///C:/Ascension%20Launcher/resources/client/TSMItemScraper/CHANGELOG.md) - Version history
