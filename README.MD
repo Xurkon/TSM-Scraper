@@ -95,6 +95,13 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press En
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
+### v3.4.23 - Pagination & Import Fixes
+
+- **Fixed consumables not importing all items**: Main consumable category now fetches all subclasses
+- **Fixed Ascension DB pagination limit**: Auto-pagination using quality filters bypasses 1000-item limit
+- **Fixed blank lines in items table**: Item entries no longer have double line breaks
+- **URL logging**: Category URLs displayed in log for debugging
+
 ### v3.4.22 - Ascension DB Filtering Fix & Category Expansion
 
 - **Fixed Ascension DB URL filtering**: Armor slot filtering now correctly uses `&filter=sl=X` parameter

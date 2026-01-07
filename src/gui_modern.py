@@ -74,7 +74,7 @@ _APP_DATA_PATH = Path(os.environ.get('APPDATA', Path.home())) / "TSM Scraper"
 DEFAULT_TSM_PATH = r"C:\Ascension Launcher\resources\client\WTF\Account\ACCOUNTNAME\SavedVariables\TradeSkillMaster.lua"
 CONFIG_PATH = _APP_DATA_PATH / "config" / "gui_config.json"
 LOG_PATH = _APP_DATA_PATH / "logs" / "scraper.log"
-VERSION = "3.4.22"
+VERSION = "3.4.23"
 
 
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.4.23] - 2026-01-07
+### Fixed
+- **Fixed consumables not importing all items**: Main consumable category now correctly uses `None` subclass to fetch all consumables instead of only subclass 0.
+- **Fixed Ascension DB pagination limit**: Categories with 950+ items now automatically paginate using quality filters to bypass the 1000-item limit (consumables went from 998 to 2776 items).
+- **Fixed blank lines in items table**: Item entries no longer have double line breaks between them in SavedVariables file.
+- **Fixed trailing blank line**: Removed extra blank line before closing brace of items table.
+
+### Added
+- **Auto-pagination for large categories**: When scraping returns 950+ items, automatically fetches additional items by quality tier (common, uncommon, rare, epic, legendary, artifact, vanity).
+- **URL logging**: Category URLs now displayed in log output for debugging filter issues.
+
 ## [3.4.22] - 2026-01-07
 ### Fixed
 - **Fixed Ascension DB URL filtering**: Armor slot filtering now correctly uses `&filter=sl=X` parameter instead of appending to items path (e.g., `?items=4.1&filter=sl=1` instead of `?items=4.1.1`).
