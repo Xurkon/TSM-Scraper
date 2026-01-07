@@ -8,8 +8,9 @@
 - **Fixed Ascension DB bind filter**: BoE/BoP/BoU filter now properly appends `&filter=cr=X;crs=1;crv=0` to category URLs.
 
 ### Added
-- **Wowhead to Ascension name matching**: New `search_by_name()` and `resolve_wowhead_items()` functions to resolve Wowhead item names to Ascension IDs.
-- New categories: offhand (`4.-5`), misc weapons (`2.14`), vanity (`100`).
+- **Wowhead to Ascension name matching**: New `search_by_name()` and `resolve_wowhead_items()` functions.
+- **New categories**: offhand, tabard, shirt, drink, arrows, bullets, misc_weapon
+- **Ascension custom items**: vanity, mounts, currency, bundles, mystic_scrolls, appearances, heirlooms
 
 ## [3.4.15] - 2025-12-18
 ### Fixed
