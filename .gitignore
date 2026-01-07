@@ -13,13 +13,17 @@ dist/
 *.spec
 
 # Source files (zip source then upload, don't upload raw source)
-*.py
-tsm_scraper/
+/*.py
+/tsm_scraper/
 theme_manager.py
 batch_import.py
 quick_import.py
 gui.py
 gui_modern.py
+
+# Allow src folder for GitHub statistics
+!src/
+!src/**
 
 # Data files
 cache/
@@ -30,3 +34,7 @@ TradeSkillMasterBackup.lua
 
 # Archives (old source versions)
 archive/
+*.zip
+
+# Workflow/planning docs (internal use only)
+workflow/
