@@ -345,7 +345,7 @@
         <p class="subtitle">Cross-server Item Scraping Tool for TradeSkillMaster on Project Ascension &amp; Retail</p>
 
         <div class="badges">
-            <span class="badge version">v3.4.20</span>
+            <span class="badge version">v3.4.23</span>
             <span class="badge wow">TSM Compatible</span>
             <span class="badge platform">Python App</span>
         </div>
@@ -414,7 +414,23 @@
         <section>
             <h2>Latest Changes</h2>
             <div class="changelog">
-                <h3>v3.4.20 - Bind Filter, Name Matching & Categories</h3>
+                <h3>v3.4.23 - Pagination & Import Fixes</h3>
+                <ul>
+                    <li>Fixed Consumables Import: Main consumable category now fetches all subclasses correctly</li>
+                    <li>Fixed Ascension DB Pagination: Auto-pagination using quality filters bypasses 1000-item limit</li>
+                    <li>Fixed Blank Lines: Item entries no longer have double line breaks in SavedVariables</li>
+                    <li>URL Logging: Category URLs now displayed in log for debugging</li>
+                </ul>
+
+                <h3 style="margin-top: 20px;">v3.4.22 - Filtering Fix & Category Expansion</h3>
+                <ul>
+                    <li>Fixed Ascension DB URL Filtering: Armor slot filtering now uses correct &filter=sl=X parameter</li>
+                    <li>Fixed Armor "Other" Categories: Cloaks, offhand, tabards, shirts use correct negative subclass IDs</li>
+                    <li>Fixed Bind Filter Combination: Filter parts now properly combined with slot filters</li>
+                    <li>60+ New Categories: Full gem colors, containers, glyphs, consumables, trade goods, recipes, pet whistles</li>
+                </ul>
+
+                <h3 style="margin-top: 20px;">v3.4.20 - Bind Filter, Name Matching & Categories</h3>
                 <ul>
                     <li>Fixed groupTreeStatus Separator: Now uses SOH (0x01) instead of space</li>
                     <li>Fixed Ascension DB Bind Filter: BoE/BoP/BoU filters now work correctly</li>
