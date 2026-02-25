@@ -2,7 +2,7 @@
 
 # TSM Item Scraper
 
-![Version](https://img.shields.io/badge/version-v3.5.0-blue.svg?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-v3.4.24-blue.svg?style=for-the-badge)
 ![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&color=e67e22)
 [![Documentation](https://img.shields.io/badge/Documentation-View%20Docs-58a6ff?style=for-the-badge)](https://xurkon.github.io/TSM-Scraper/)
 [![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/Xurkon)
@@ -89,7 +89,7 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press En
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
-### v3.5.0 - Wowhead ID Verification System
+### v3.4.24 - Ascension UI Group Fix & Verification System
 
 - **NEW: Automatic ID Verification**: When importing from Wowhead to Project Ascension, items are now automatically verified against the Ascension database to ensure correct item IDs
 - **ID Verification Modes**: Three modes available:
