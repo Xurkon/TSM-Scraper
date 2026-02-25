@@ -284,10 +284,10 @@ class TSMLuaWriter:
         """
         Add a group to the groupTreeStatus.groups table in Ascension TSM format.
         
-        Format uses SOH (0x01) as separator and builds a cumulative path:
-        ["1\x01GroupName"] = true (for top-level)
-        ["1\x01GroupName\x01GroupName`SubGroup"] = true (for children)
-        ["1\x01GroupName\x01GroupName`SubGroup\x01GroupName`SubGroup`SubSub"] = true (deeper)
+        Format uses spaces as separator and builds a cumulative path:
+        ["1 GroupName"] = true (for top-level)
+        ["1 GroupName GroupName`SubGroup"] = true (for children)
+        ["1 GroupName GroupName`SubGroup GroupName`SubGroup`SubSub"] = true (deeper)
         """
         # Find groupTreeStatus -> groups table
         gts_pattern = r'\["groupTreeStatus"\]\s*=\s*\{'
@@ -326,15 +326,15 @@ class TSMLuaWriter:
         
         inner_groups_content = content[inner_groups_start:inner_groups_end]
         
-        # Prepare the key - uses SOH (0x01) separator and builds cumulative path
-        # Example: "1\x01TestGroup\x01TestGroup`SubGroup\x01TestGroup`SubGroup`SubSub"
+        # Prepare the key - uses space separator and builds cumulative path for Ascension
+        # Example: "1 TestGroup TestGroup`SubGroup TestGroup`SubGroup`SubSub"
         parts = group_path.split('`')
         path_parts = ["1"]  # Always starts with "1"
         for i in range(len(parts)):
             # Build cumulative path: first part alone, then with each backtick segment
             cumulative_path = '`'.join(parts[:i+1])
             path_parts.append(cumulative_path)
-        gts_key = "\x01".join(path_parts)
+        gts_key = " ".join(path_parts)
             
         # Check if already exists
         escaped_key = re.escape(gts_key)

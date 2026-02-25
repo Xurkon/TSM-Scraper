@@ -1,5 +1,29 @@
 # Changelog
 
+## [3.4.24] - 2026-02-24
+### Fixed
+- **Fixed Ascension Group Visibility**: Modified group tree structure generation to correctly use spaces instead of the retail `\x01` separator, allowing the Ascension client to properly recognize UI paths.
+- **Updated Test Framework**: Rewrote `test_gts_keys.py` to accurately assert the space-delimited expectation.
+
+## [3.5.0] - 2026-01-09
+### Added
+- **Wowhead to Ascension ID Verification System**: Complete implementation of automatic item ID verification when importing from Wowhead databases to Project Ascension
+- **Three Verification Modes**:
+  - `Verified Only (Safest)`: Only imports items where the ID is confirmed to exist on Ascension with a matching name
+  - `Trust Missing Items`: Also imports items not found in Ascension's database (useful since their DB is incomplete)
+  - `No Verification (Risky)`: Uses Wowhead IDs directly without any verification
+- **ID Conflict Detection**: Automatically detects when a Wowhead ID points to a different item on Ascension and searches by name to find the correct ID
+- **Verification Statistics**: Results display now shows counts for verified, remapped, trusted, and failed items
+- **Progress Feedback**: Status bar shows verification progress when processing Wowhead imports
+- **Detailed Logging**: Failed items are logged with reasons for troubleshooting
+
+### Changed
+- Removed the "Project Ascension ID Warning" from README - the verification system now handles this automatically
+- Version bump to 3.5.0 to reflect the major new feature
+
+### Fixed
+- Wowhead items are no longer imported with potentially incorrect IDs - all items are now verified against Ascension's database
+
 ## [3.4.23] - 2026-01-07
 ### Fixed
 - **Fixed consumables not importing all items**: Main consumable category now correctly uses `None` subclass to fetch all consumables instead of only subclass 0.

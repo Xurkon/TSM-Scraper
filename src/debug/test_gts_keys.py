@@ -8,10 +8,10 @@ def test_gts_key_generation():
     """Test that groupTreeStatus keys are generated correctly with SOH separator."""
     
     test_cases = [
-        ("TestGroup", "1\x01TestGroup"),
-        ("TestGroup`SubGroupTest", "1\x01TestGroup\x01TestGroup`SubGroupTest"),
-        ("TestGroup`SubGroupTest`SubSubgroupTest", "1\x01TestGroup\x01TestGroup`SubGroupTest\x01TestGroup`SubGroupTest`SubSubgroupTest"),
-        ("TestGroup`SubGroupTest`SubSubgroupTest`SuperSubgroupTest", "1\x01TestGroup\x01TestGroup`SubGroupTest\x01TestGroup`SubGroupTest`SubSubgroupTest\x01TestGroup`SubGroupTest`SubSubgroupTest`SuperSubgroupTest"),
+        ("TestGroup", "1 TestGroup"),
+        ("TestGroup`SubGroupTest", "1 TestGroup TestGroup`SubGroupTest"),
+        ("TestGroup`SubGroupTest`SubSubgroupTest", "1 TestGroup TestGroup`SubGroupTest TestGroup`SubGroupTest`SubSubgroupTest"),
+        ("TestGroup`SubGroupTest`SubSubgroupTest`SuperSubgroupTest", "1 TestGroup TestGroup`SubGroupTest TestGroup`SubGroupTest`SubSubgroupTest TestGroup`SubGroupTest`SubSubgroupTest`SuperSubgroupTest"),
     ]
     
     print("Testing groupTreeStatus key generation...\n")
@@ -24,7 +24,7 @@ def test_gts_key_generation():
         for i in range(len(parts)):
             cumulative_path = '`'.join(parts[:i+1])
             path_parts.append(cumulative_path)
-        gts_key = "\x01".join(path_parts)
+        gts_key = " ".join(path_parts)
         
         passed = gts_key == expected_key
         status = "PASS" if passed else "FAIL"

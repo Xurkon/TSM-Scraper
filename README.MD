@@ -1,14 +1,8 @@
-> [!WARNING]
-> ## ⚠️ Project Ascension ID Warning
-> **Project Ascension uses different Item IDs than Retail WoW.**
->
-> Importing IDs directly from WoWhead may return **unexpected items** or incorrect data. Always verify IDs against the [Ascension Database](https://db.ascension.gg) or in-game tooltips before importing.
-
 <div align="center">
 
 # TSM Item Scraper
 
-![Version](https://img.shields.io/badge/version-v3.4.23-blue.svg?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-v3.5.0-blue.svg?style=for-the-badge)
 ![Downloads](https://img.shields.io/github/downloads/Xurkon/TSM-Scraper/total?style=for-the-badge&color=e67e22)
 [![Documentation](https://img.shields.io/badge/Documentation-View%20Docs-58a6ff?style=for-the-badge)](https://xurkon.github.io/TSM-Scraper/)
 [![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/Xurkon)
@@ -94,6 +88,16 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM Scraper`, and press En
 ## 📜 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+### v3.5.0 - Wowhead ID Verification System
+
+- **NEW: Automatic ID Verification**: When importing from Wowhead to Project Ascension, items are now automatically verified against the Ascension database to ensure correct item IDs
+- **ID Verification Modes**: Three modes available:
+  - **Verified Only (Safest)**: Only imports items confirmed to exist on Ascension with matching names
+  - **Trust Missing Items**: Also imports items not found in Ascension's database (assumes ID is correct)
+  - **No Verification (Risky)**: Uses Wowhead IDs directly without verification
+- **Verification Stats**: Results display shows verified, remapped, trusted, and failed item counts
+- **Conflict Detection**: Automatically detects when a Wowhead ID points to a different item on Ascension and attempts to find the correct ID by name
 
 ### v3.4.23 - Pagination & Import Fixes
 
