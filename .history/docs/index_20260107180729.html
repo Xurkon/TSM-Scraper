@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TSM-Scraper - Documentation</title>
+    <title>TSM Item Scraper - Documentation</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -341,11 +341,11 @@
 
 <body>
     <div class="hero">
-        <h1>TSM-Scraper</h1>
+        <h1>TSM Item Scraper</h1>
         <p class="subtitle">Cross-server Item Scraping Tool for TradeSkillMaster on Project Ascension &amp; Retail</p>
 
         <div class="badges">
-            <span class="badge version">v3.4.24</span>
+            <span class="badge version">v3.4.23</span>
             <span class="badge wow">TSM Compatible</span>
             <span class="badge platform">Python App</span>
         </div>
@@ -391,11 +391,11 @@
             <h2>File Locations</h2>
             <div class="commands-list">
                 <div class="command-item">
-                    <span class="command-code">%APPDATA%\TSM-Scraper\config\</span>
+                    <span class="command-code">%APPDATA%\TSM Scraper\config\</span>
                     <span class="command-desc">Settings and saved profiles (gui_config.json)</span>
                 </div>
                 <div class="command-item">
-                    <span class="command-code">%APPDATA%\TSM-Scraper\logs\</span>
+                    <span class="command-code">%APPDATA%\TSM Scraper\logs\</span>
                     <span class="command-desc">Application logs (scraper.log)</span>
                 </div>
             </div>
@@ -403,7 +403,7 @@
                 💡 To open: Press <code
                     style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">Win + R</code>,
                 type <code
-                    style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">%APPDATA%\TSM-Scraper</code>,
+                    style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;">%APPDATA%\TSM Scraper</code>,
                 and press Enter.
             </p>
         </section>
@@ -414,14 +414,7 @@
         <section>
             <h2>Latest Changes</h2>
             <div class="changelog">
-                <h3>v3.4.24 - Group Fixes & Verification</h3>
-                <ul>
-                    <li>Fixed Ascension Group Visibility: Modified group tree structure generation to use spaces instead of \x01.</li>
-                    <li>Updated Test Framework: Rewrote assertions to match space-delimited paths.</li>
-                    <li>Automatic ID Verification: Automatically verifies items against Ascension DB.</li>
-                </ul>
-
-                <h3 style="margin-top: 20px;">v3.4.23 - Pagination & Import Fixes</h3>
+                <h3>v3.4.23 - Pagination & Import Fixes</h3>
                 <ul>
                     <li>Fixed Consumables Import: Main consumable category now fetches all subclasses correctly</li>
                     <li>Fixed Ascension DB Pagination: Auto-pagination using quality filters bypasses 1000-item limit</li>

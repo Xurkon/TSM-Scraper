@@ -1,5 +1,5 @@
 """
-TSM-Scraper GUI - Modern Edition
+TSM Item Scraper GUI - Modern Edition
 
 A sleek, modern graphical interface using CustomTkinter.
 Features rounded corners, smooth animations, and a techy dark theme.
@@ -69,7 +69,7 @@ else:
     _BASE_PATH = Path(__file__).parent
 
 # Use AppData for config/logs to avoid needing admin rights when EXE is in protected folders
-_APP_DATA_PATH = Path(os.environ.get('APPDATA', Path.home())) / "TSM-Scraper"
+_APP_DATA_PATH = Path(os.environ.get('APPDATA', Path.home())) / "TSM Scraper"
 
 DEFAULT_TSM_PATH = r"C:\Ascension Launcher\resources\client\WTF\Account\ACCOUNTNAME\SavedVariables\TradeSkillMaster.lua"
 CONFIG_PATH = _APP_DATA_PATH / "config" / "gui_config.json"
@@ -195,14 +195,14 @@ def themed_showwarning(parent, title: str, message: str):
 # ============================================================================
 
 class TSMScraperApp(ctk.CTk if HAS_CTK else object):
-    """Modern TSM-Scraper GUI using CustomTkinter."""
+    """Modern TSM Item Scraper GUI using CustomTkinter."""
     
     def __init__(self):
         super().__init__()
         
         apply_ctk_theme()
         
-        self.title(f"TSM-Scraper v{VERSION}")
+        self.title(f"TSM Item Scraper v{VERSION}")
         self.geometry("1000x750")
         self.minsize(900, 650)
         

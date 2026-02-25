@@ -1,5 +1,5 @@
 """
-TSM-Scraper GUI - Modern Edition
+TSM Item Scraper GUI - Modern Edition
 
 A sleek, modern graphical interface using CustomTkinter.
 Features rounded corners, smooth animations, and a techy dark theme.
@@ -69,12 +69,12 @@ else:
     _BASE_PATH = Path(__file__).parent
 
 # Use AppData for config/logs to avoid needing admin rights when EXE is in protected folders
-_APP_DATA_PATH = Path(os.environ.get('APPDATA', Path.home())) / "TSM-Scraper"
+_APP_DATA_PATH = Path(os.environ.get('APPDATA', Path.home())) / "TSM Scraper"
 
 DEFAULT_TSM_PATH = r"C:\Ascension Launcher\resources\client\WTF\Account\ACCOUNTNAME\SavedVariables\TradeSkillMaster.lua"
 CONFIG_PATH = _APP_DATA_PATH / "config" / "gui_config.json"
 LOG_PATH = _APP_DATA_PATH / "logs" / "scraper.log"
-VERSION = "3.4.23"
+VERSION = "3.5.0"
 
 
 
@@ -195,14 +195,14 @@ def themed_showwarning(parent, title: str, message: str):
 # ============================================================================
 
 class TSMScraperApp(ctk.CTk if HAS_CTK else object):
-    """Modern TSM-Scraper GUI using CustomTkinter."""
+    """Modern TSM Item Scraper GUI using CustomTkinter."""
     
     def __init__(self):
         super().__init__()
         
         apply_ctk_theme()
         
-        self.title(f"TSM-Scraper v{VERSION}")
+        self.title(f"TSM Item Scraper v{VERSION}")
         self.geometry("1000x750")
         self.minsize(900, 650)
         
@@ -237,7 +237,16 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
             "No Binding": (0, "Items with no bind restrictions"),
         }
         self.bind_filter_var = ctk.StringVar(value="All Items")
-        
+
+        # ID Verification mode options for Wowhead -> Ascension imports
+        # This controls how items from Wowhead are matched to Ascension IDs
+        self.ID_VERIFY_OPTIONS = {
+            "Verified Only (Safest)": ("verified", "Only import items verified to exist on Ascension with matching name"),
+            "Trust Missing Items": ("trust_missing", "Also import items not found in Ascension DB (assumes ID is correct)"),
+            "No Verification (Risky)": ("wowhead_direct", "Use Wowhead IDs directly - may import wrong items!"),
+        }
+        self.id_verify_var = ctk.StringVar(value="Verified Only (Safest)")
+
         # Manual Item ID management
         self.manual_add_ids: list = []
         self.manual_remove_ids: list = []
@@ -692,7 +701,48 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
             text_color=get_color('text_gray')
         )
         self.bind_info.pack(anchor="w", pady=(2, 0))
-        
+
+        # ID Verification Mode Section (for Wowhead -> Ascension)
+        self.verify_frame = ctk.CTkFrame(server_section, fg_color="transparent")
+        self.verify_frame.pack(fill="x", pady=(8, 0))
+
+        ctk.CTkLabel(
+            self.verify_frame,
+            text="ID Verification (Wowhead)",
+            font=ctk.CTkFont(size=11),
+            text_color=get_color('text_light')
+        ).pack(anchor="w")
+
+        self.verify_combo = ctk.CTkComboBox(
+            self.verify_frame,
+            variable=self.id_verify_var,
+            values=list(self.ID_VERIFY_OPTIONS.keys()),
+            height=26,
+            corner_radius=6,
+            fg_color=get_color('bg_light'),
+            border_color=get_color('border_dark'),
+            button_color=get_color('accent_primary_dark'),
+            button_hover_color=get_color('accent_primary'),
+            dropdown_fg_color=get_color('bg_medium'),
+            dropdown_hover_color=get_color('bg_hover'),
+            font=ctk.CTkFont(size=10),
+            command=self.on_verify_mode_changed
+        )
+        self.verify_combo.pack(fill="x", pady=(4, 0))
+
+        # Verification mode info label
+        self.verify_info = ctk.CTkLabel(
+            self.verify_frame,
+            text="Only import items verified to exist on Ascension",
+            font=ctk.CTkFont(size=9),
+            text_color=get_color('text_gray'),
+            wraplength=180
+        )
+        self.verify_info.pack(anchor="w", pady=(2, 0))
+
+        # Initially hide - only show when Wowhead is selected
+        self.verify_frame.pack_forget()
+
         # Manual Item IDs Section
         manual_frame = ctk.CTkFrame(server_section, fg_color="transparent")
         manual_frame.pack(fill="x", pady=(12, 0))
@@ -1258,18 +1308,59 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
             text_color=get_color('text_gray')
         )
         self.bind_info.pack(anchor="w", pady=(2, 0))
-        
+
+        # ID Verification Mode Section (for Wowhead -> Ascension)
+        # Note: This duplicates the widget from the grid layout but shares the same variables
+        self.verify_frame = ctk.CTkFrame(server_section, fg_color="transparent")
+        self.verify_frame.pack(fill="x", pady=(8, 0))
+
+        ctk.CTkLabel(
+            self.verify_frame,
+            text="ID Verification (Wowhead)",
+            font=ctk.CTkFont(size=11),
+            text_color=get_color('text_light')
+        ).pack(anchor="w")
+
+        self.verify_combo = ctk.CTkComboBox(
+            self.verify_frame,
+            variable=self.id_verify_var,
+            values=list(self.ID_VERIFY_OPTIONS.keys()),
+            height=26,
+            corner_radius=6,
+            fg_color=get_color('bg_light'),
+            border_color=get_color('border_dark'),
+            button_color=get_color('accent_primary_dark'),
+            button_hover_color=get_color('accent_primary'),
+            dropdown_fg_color=get_color('bg_medium'),
+            dropdown_hover_color=get_color('bg_hover'),
+            font=ctk.CTkFont(size=10),
+            command=self.on_verify_mode_changed
+        )
+        self.verify_combo.pack(fill="x", pady=(4, 0))
+
+        self.verify_info = ctk.CTkLabel(
+            self.verify_frame,
+            text="Only import items verified to exist on Ascension",
+            font=ctk.CTkFont(size=9),
+            text_color=get_color('text_gray'),
+            wraplength=180
+        )
+        self.verify_info.pack(anchor="w", pady=(2, 0))
+
+        # Initially hide - only show when Wowhead is selected
+        self.verify_frame.pack_forget()
+
         # Manual Item IDs Section
         manual_frame = ctk.CTkFrame(server_section, fg_color="transparent")
         manual_frame.pack(fill="x", pady=(12, 0))
-        
+
         ctk.CTkLabel(
             manual_frame,
             text="📝 Manual Item IDs",
             font=ctk.CTkFont(size=11),
             text_color=get_color('text_light')
         ).pack(anchor="w")
-        
+
         entry_row = ctk.CTkFrame(manual_frame, fg_color="transparent")
         entry_row.pack(fill="x", pady=(4, 0))
         
@@ -2362,6 +2453,7 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
         self.current_server = selection
         
         # Handle different scraper types
+        is_wowhead = False
         if info.get('scraper') == 'ascension':
             from tsm_scraper.ascension_scraper import AscensionDBScraper
             self.scraper = AscensionDBScraper()
@@ -2372,11 +2464,20 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
             self.log("Using Turtle WoW scraper", 'cyan')
         else:
             # Use Wowhead scraper with appropriate version
+            is_wowhead = True
             version = info.get('version', 'wotlk')
             self.scraper = WowheadScraper(game_version=version)
             self.wowhead_scraper = self.scraper  # Keep reference
             self.log(f"Using Wowhead scraper ({version})", 'cyan')
-        
+
+        # Show/hide ID verification section based on whether Wowhead is selected
+        # Verification is needed when importing from Wowhead to Ascension
+        if is_wowhead and hasattr(self, 'verify_frame'):
+            self.verify_frame.pack(fill="x", pady=(8, 0), after=self.bind_info.master)
+            self.log("ID verification enabled - Wowhead IDs will be verified against Ascension DB", 'info')
+        elif hasattr(self, 'verify_frame'):
+            self.verify_frame.pack_forget()
+
         # Update categories for the selected server
         self.update_categories_for_server()
     
@@ -2411,14 +2512,29 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
     def on_bind_filter_changed(self, selection: str):
         """Handle bind type filter selection change."""
         bind_id, description = self.BIND_FILTER_OPTIONS.get(selection, (None, "No filter"))
-        
+
         # Update info label
         self.bind_info.configure(text=description)
-        
+
         if bind_id is None:
             self.log(f"Bind filter: All items (no filter)", 'cyan')
         else:
             self.log(f"Bind filter set to: {selection}", 'cyan')
+
+    def on_verify_mode_changed(self, selection: str):
+        """Handle ID verification mode selection change."""
+        mode, description = self.ID_VERIFY_OPTIONS.get(selection, ("verified", ""))
+
+        # Update info label
+        self.verify_info.configure(text=description)
+
+        # Log the change with appropriate color based on risk
+        if mode == "verified":
+            self.log(f"ID verification: {selection}", 'success')
+        elif mode == "trust_missing":
+            self.log(f"ID verification: {selection}", 'warning')
+        else:
+            self.log(f"ID verification: {selection} - USE WITH CAUTION", 'error')
     
     def add_manual_id(self):
         """Add or remove an item ID based on remove mode."""
@@ -2899,8 +3015,62 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
                     # Get the selected bind filter
                     filter_selection = self.bind_filter_var.get()
                     bind_id, _ = self.BIND_FILTER_OPTIONS.get(filter_selection, (None, ""))
-                    items = self.scraper.scrape_by_name(cat_name, bonding_filter=bind_id)
-                    item_ids = [item.id for item in items]
+                    wowhead_items = self.scraper.scrape_by_name(cat_name, bonding_filter=bind_id)
+
+                    # Resolve Wowhead IDs to Ascension IDs using verification
+                    verify_selection = self.id_verify_var.get()
+                    verify_mode, _ = self.ID_VERIFY_OPTIONS.get(verify_selection, ("verified", ""))
+
+                    if verify_mode != "wowhead_direct" and wowhead_items:
+                        self.log(f"Verifying {len(wowhead_items)} items against Ascension DB...", 'info')
+                        self.after(0, lambda c=cat_name, n=len(wowhead_items): self.status_label.configure(
+                            text=f"● Verifying {n} items from {c}...",
+                            text_color=get_color('accent_secondary')
+                        ))
+
+                        # Import the Ascension scraper for verification
+                        from tsm_scraper.ascension_scraper import AscensionDBScraper
+                        ascension_scraper = AscensionDBScraper()
+
+                        # Progress callback for verification
+                        def verify_progress(current, total, item_name):
+                            if current % 10 == 0:  # Update every 10 items
+                                self.after(0, lambda c=current, t=total: self.status_label.configure(
+                                    text=f"● Verifying {c}/{t}...",
+                                    text_color=get_color('accent_secondary')
+                                ))
+
+                        # Resolve items
+                        resolution = ascension_scraper.resolve_wowhead_items(
+                            wowhead_items,
+                            progress_callback=verify_progress,
+                            mode=verify_mode
+                        )
+
+                        # Extract verified IDs
+                        item_ids = list(resolution['resolved'].values())
+
+                        # Store resolution stats in scrape_results for display
+                        stats = resolution['stats']
+                        self.log(
+                            f"{cat_name}: {stats['verified']} verified, "
+                            f"{stats['remapped']} remapped, "
+                            f"{stats['trusted']} trusted, "
+                            f"{stats['failed']} failed",
+                            'info'
+                        )
+
+                        # Store additional info for results display
+                        self.scrape_results[cat_name] = {
+                            'tsm_group': tsm_group,
+                            'found': len(wowhead_items),
+                            'new_ids': [],  # Will be set below
+                            'resolution': resolution,
+                            'wowhead_items': wowhead_items
+                        }
+                    else:
+                        # No verification - use Wowhead IDs directly
+                        item_ids = [item.id for item in wowhead_items]
                 else:
                     # Use Ascension/TurtleWoW scraper methods
                     class_map = {
@@ -2971,16 +3141,23 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
                     if filter_parts:
                         url += "&filter=" + ";".join(filter_parts)
 
+                    self.log(f"URL: {url}", 'gray')
                     item_ids = self.scraper.scrape_item_ids_from_page(url)
+
                 new_ids = [i for i in item_ids if i not in self.existing_ids]
-                
-                self.scrape_results[cat_name] = {
-                    'tsm_group': tsm_group,
-                    'found': len(item_ids),
-                    'new_ids': new_ids
-                }
-                
-                total_found += len(item_ids)
+
+                # Store results - check if we already stored them (Wowhead with verification)
+                if cat_name not in self.scrape_results:
+                    self.scrape_results[cat_name] = {
+                        'tsm_group': tsm_group,
+                        'found': len(item_ids),
+                        'new_ids': new_ids
+                    }
+                else:
+                    # Update new_ids for Wowhead verification case
+                    self.scrape_results[cat_name]['new_ids'] = new_ids
+
+                total_found += self.scrape_results[cat_name]['found']
                 total_new += len(new_ids)
                 
                 # Format result line
@@ -2988,11 +3165,53 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
                 status = "✓" if new_ids else "—"
                 results_lines.append(f"{status} {display:<25} Found: {len(item_ids):>5}   New: {len(new_ids):>5}   → {tsm_group}")
             
+            # Calculate verification stats across all categories
+            total_verified = 0
+            total_remapped = 0
+            total_trusted = 0
+            total_failed = 0
+            all_failed_items = []
+
+            for cat_name, data in self.scrape_results.items():
+                resolution = data.get('resolution')
+                if resolution:
+                    stats = resolution.get('stats', {})
+                    total_verified += stats.get('verified', 0)
+                    total_remapped += stats.get('remapped', 0)
+                    total_trusted += stats.get('trusted', 0)
+                    total_failed += stats.get('failed', 0)
+                    # Collect failed items for reporting
+                    for item_id, name, reason in resolution.get('failed', []):
+                        all_failed_items.append((cat_name, name, reason))
+
             # Update results display with checkboxes
             self.after(0, self.update_results_with_checkboxes)
-            
+
+            # Log completion with verification summary if applicable
+            if total_verified > 0 or total_remapped > 0 or total_trusted > 0:
+                verify_summary = []
+                if total_verified > 0:
+                    verify_summary.append(f"{total_verified} verified")
+                if total_remapped > 0:
+                    verify_summary.append(f"{total_remapped} remapped")
+                if total_trusted > 0:
+                    verify_summary.append(f"{total_trusted} trusted")
+                if total_failed > 0:
+                    verify_summary.append(f"{total_failed} failed")
+
+                self.log(f"Verification: {', '.join(verify_summary)}", 'info')
+
+                # Show warning if items failed
+                if total_failed > 0:
+                    self.log(f"WARNING: {total_failed} items could not be verified and will NOT be imported", 'warning')
+                    # Log first few failed items
+                    for cat, name, reason in all_failed_items[:5]:
+                        self.log(f"  - {name}: {reason}", 'warning')
+                    if len(all_failed_items) > 5:
+                        self.log(f"  ... and {len(all_failed_items) - 5} more", 'warning')
+
             self.log(f"Complete: {total_found:,} found, {total_new:,} new", 'success')
-            
+
             self.after(0, lambda: self.results_summary.configure(
                 text=f"{total_found:,} items found • {total_new:,} new"
             ))
@@ -3000,10 +3219,10 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
                 text="● Scrape complete",
                 text_color=get_color('color_success')
             ))
-            
+
             if total_new > 0:
                 self.after(0, lambda: self.import_btn.configure(state="normal"))
-            
+
             # Always auto-select the most relevant group based on what was scraped
             self.after(200, self.auto_select_scrape_group)
             
@@ -3102,7 +3321,36 @@ class TSMScraperApp(ctk.CTk if HAS_CTK else object):
             ctk.CTkLabel(row, text=f"→ {group_display}", anchor="w",
                         font=ctk.CTkFont(size=8),
                         text_color=get_color('accent_secondary')).pack(side="left", fill="x", expand=True)
-    
+
+            # Show verification stats if available (Wowhead imports)
+            resolution = data.get('resolution')
+            if resolution:
+                stats = resolution.get('stats', {})
+                failed_count = stats.get('failed', 0)
+                conflicts = stats.get('conflicts', 0)
+
+                if failed_count > 0 or conflicts > 0:
+                    # Show warning row for failed/conflicted items
+                    warn_row = ctk.CTkFrame(self.results_scroll, fg_color="transparent")
+                    warn_row.pack(fill="x", padx=5, pady=0)
+
+                    warn_text = []
+                    if stats.get('verified', 0) > 0:
+                        warn_text.append(f"{stats['verified']} verified")
+                    if stats.get('remapped', 0) > 0:
+                        warn_text.append(f"{stats['remapped']} remapped")
+                    if stats.get('trusted', 0) > 0:
+                        warn_text.append(f"{stats['trusted']} trusted")
+                    if failed_count > 0:
+                        warn_text.append(f"{failed_count} not found")
+
+                    ctk.CTkLabel(
+                        warn_row,
+                        text=f"      └ {', '.join(warn_text)}",
+                        font=ctk.CTkFont(size=8),
+                        text_color=get_color('color_warning') if failed_count > 0 else get_color('text_gray')
+                    ).pack(side="left", padx=(30, 0))
+
     def get_selected_import_categories(self) -> dict:
         """Get only the categories that are checked for import."""
         selected = {}

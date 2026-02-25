@@ -29,12 +29,12 @@ VSVersionInfo(
       StringTable(
         u'040904B0',
         [StringStruct(u'CompanyName', u'Xurkon'),
-        StringStruct(u'FileDescription', u'TSM-Scraper - Import items into TradeSkillMaster'),
+        StringStruct(u'FileDescription', u'TSM Item Scraper - Import items into TradeSkillMaster'),
         StringStruct(u'FileVersion', u'3.4.24.0'),
-        StringStruct(u'InternalName', u'TSM-Scraper'),
+        StringStruct(u'InternalName', u'TSM Item Scraper'),
         StringStruct(u'LegalCopyright', u'Copyright (c) 2024 Xurkon'),
         StringStruct(u'OriginalFilename', u'TSM Scraper.exe'),
-        StringStruct(u'ProductName', u'TSM-Scraper'),
+        StringStruct(u'ProductName', u'TSM Item Scraper'),
         StringStruct(u'ProductVersion', u'3.4.24.0')])
       ]),
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
