@@ -19,8 +19,6 @@ batch_import.py
 quick_import.py
 gui.py
 gui_modern.py
-# Allow src folder for GitHub statistics
-# Removed per user request, we no longer want any src tracked
 
 config/
 *.lua

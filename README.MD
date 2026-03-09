@@ -71,53 +71,17 @@ To open this folder, press `Win + R`, type `%APPDATA%\TSM-Scraper`, and press En
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
-### v3.4.24 - Ascension UI Group Fix & Verification System
+### v3.5.0 - Wowhead ID Verification & Safety
 
-- **NEW: Automatic ID Verification**: When importing from Wowhead to Project Ascension, items are now automatically verified against the Ascension database to ensure correct item IDs
-- **ID Verification Modes**: Three modes available:
-  - **Verified Only (Safest)**: Only imports items confirmed to exist on Ascension with matching names
-  - **Trust Missing Items**: Also imports items not found in Ascension's database (assumes ID is correct)
-  - **No Verification (Risky)**: Uses Wowhead IDs directly without verification
-- **Verification Stats**: Results display shows verified, remapped, trusted, and failed item counts
-- **Conflict Detection**: Automatically detects when a Wowhead ID points to a different item on Ascension and attempts to find the correct ID by name
-
-### v3.4.23 - Pagination & Import Fixes
-
-- **Fixed consumables not importing all items**: Main consumable category now fetches all subclasses
-- **Fixed Ascension DB pagination limit**: Auto-pagination using quality filters bypasses 1000-item limit
-- **Fixed blank lines in items table**: Item entries no longer have double line breaks
-- **URL logging**: Category URLs displayed in log for debugging
-
-### v3.4.22 - Ascension DB Filtering Fix & Category Expansion
-
-- **Fixed Ascension DB URL filtering**: Armor slot filtering now correctly uses `&filter=sl=X` parameter
-- **Fixed armor "other" categories**: Cloaks, offhand, tabards, shirts now use correct negative subclass IDs
-- **Fixed bind filter combination**: Filter parts now properly combined with slot filters
-- **Fixed group deletion**: No longer leaves blank lines in SavedVariables
-- **60+ new categories**: Full gem colors, containers, glyphs, consumables, trade goods, recipes, pet whistles
-
-### v3.4.20 - TSM Format & Bind Filter Fix
-
-- **Fixed groupTreeStatus key format**: Now uses SOH separator matching actual TSM format
-- **Fixed Ascension DB bind filter**: BoE/BoP/BoU filter now properly appends to category URLs
-- **Wowhead to Ascension name matching**: New item resolution functions
-- **New Ascension categories**: vanity, mounts, currency, bundles, appearances, heirlooms
-
-### v3.4.7 - Empty Profile Fix
-
-- **Fixed Import to Empty Profiles**: Items can now be imported after creating default groups
-
-### v3.3.0 - UI Overhaul
-
-- **Manual Item IDs**: Add/remove specific item IDs with single entry, paste list, or remove mode
-- **4-Column UI Layout**: Options | Categories | Results | Groups for better workflow
-- **Draggable Column Resize**: Drag dividers between columns to customize widths
-
-### v3.2.0 - Feature Merge Update
-
-- **Bind Type Filter**: Filter items by BoE, BoP, BoU, BoA, Quest, Warbound
-- **Group Management**: Right-click groups to Rename, Add Sub-Group, Delete
-- **Profile Management**: Store and switch between up to 5 TSM profiles
+- **Wowhead to Ascension ID Verification System**: Complete implementation of automatic item ID verification when importing from Wowhead databases to Project Ascension
+- **Three Verification Modes**:
+  - `Verified Only (Safest)`: Only imports items where the ID is confirmed to exist on Ascension with a matching name
+  - `Trust Missing Items`: Also imports items not found in Ascension's database (useful since their DB is incomplete)
+  - `No Verification (Risky)`: Uses Wowhead IDs directly without any verification
+- **ID Conflict Detection**: Automatically detects when a Wowhead ID points to a different item on Ascension and searches by name to find the correct ID
+- **Verification Statistics**: Results display now shows counts for verified, remapped, trusted, and failed items
+- **Progress Feedback**: Status bar shows verification progress when processing Wowhead imports
+- **Detailed Logging**: Failed items are logged with reasons for troubleshooting
 
 ## 👥 Credits
 
