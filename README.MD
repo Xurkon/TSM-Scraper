@@ -44,26 +44,9 @@ Automatic backups of your TSM config before every import.
 
 ## 📥 Installation
 
-### Option 1: Standalone EXE (Recommended)
-
 1. Download the latest release
 2. Run `TSM Scraper.exe`
 3. Configure your TSM path and start scraping!
-
-### Option 2: Python Source
-
-1. Clone this repository
-2. Install dependencies:
-
-   ```
-   pip install -r requirements.txt
-   ```
-
-3. Run the GUI:
-
-   ```
-   python gui_modern.py
-   ```
 
 ## 🔧 Usage
 
@@ -83,7 +66,6 @@ Configuration and log files are stored in your Windows AppData folder:
 | **Logs** | `%APPDATA%\TSM-Scraper\logs\scraper.log` |
 
 To open this folder, press `Win + R`, type `%APPDATA%\TSM-Scraper`, and press Enter.
-
 
 ## 📜 Changelog
 
@@ -143,6 +125,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 - **Project Ascension** - For the amazing 3.3.5a custom server
 - **Wowhead** - For the comprehensive item databases
 - **TurtleWoW** - Also for a great server!
+
 ## 📄 License
 
 MIT License - See [LICENSE](LICENSE) for details.
